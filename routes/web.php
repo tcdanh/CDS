@@ -6,11 +6,16 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\IntroController;
 use App\Http\Controllers\Admin\AdminConfigController;
+/**use App\Http\Controllers\Auth\AuthenticatedSessionController;**/
 
 /**Route::get('/', function () {
     return view('welcome');
 }); **/
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home'); 
+/**Route::middleware('guest')->get('/', [AuthenticatedSessionController::class, 'create'])->name('home');**/
+/**Route::redirect('/', '/login')->name('home');**/
+
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
