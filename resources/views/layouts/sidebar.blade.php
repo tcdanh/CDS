@@ -87,6 +87,55 @@
                                 </a> 
                             </li>
                             <!-- End: Education mgt -->
+                            <!-- Administration mgt -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-person-square"></i>
+                                <p>
+                                    Sơ yếu lý lịch
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                                </a> 
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{{ route('scientific-profiles.show') }}" class="nav-link {{ request()->routeIs('scientific-profiles.*') ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Thông tin cá nhân</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('banner_article.index') }}" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Gia đình</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('banner_article.index') }}" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Lịch sử bản thân</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('banner_article.index') }}" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quá trình đào tạo</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('banner_article.index') }}" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quá trình công tác</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('banner_article.index') }}" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quy hoạch</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- End: Administration mgt -->
                             <!-- Admin config -->
                             <li class="nav-item">
                                 <a href="{{ route('admin_setting.index') }}" class="nav-link">

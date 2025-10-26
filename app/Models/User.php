@@ -52,4 +52,13 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+    
+    public function scientificProfile()
+    {
+        return $this->hasOne(ScientificProfile::class);
+    }
+    public function personalInfo()
+    {
+        return $this->hasOne(PersonalInfo::class);
+    }
 }
