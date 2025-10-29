@@ -3,6 +3,47 @@
 @section('title', 'Thông tin cá nhân')
 
 @section('content')
+
+@php
+    $canEdit = $canEdit ?? true;
+    $canManageProfiles = $canManageProfiles ?? false;
+    $viewer = request()->user();
+    $targetUser = $targetUser ?? $viewer;
+    $viewingOwnProfile = $viewer && $targetUser && $targetUser->is($viewer);
+    $familyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $trainingRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+@endphp
+
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-4">
+    <div class="d-flex gap-2">
+        @if ($canManageProfiles)
+            <a href="{{ route('scientific-profiles.show') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-short me-1"></i>
+                Quay lại danh sách hồ sơ
+            </a>
+        @endif
+        <a href="{{ route('scientific-profiles.family', $familyRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-people me-1"></i>
+            Xem quan hệ gia đình
+        </a>
+        <a href="{{ route('scientific-profiles.history', $historyRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-journal-text me-1"></i>
+            Xem lịch sử bản thân
+        </a>
+        <a href="{{ route('scientific-profiles.training', $trainingRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-mortarboard me-1"></i>
+            Quá trình đào tạo
+        </a>
+    </div>
+    @if ($canEdit)
+        <a href="{{ route('scientific-profiles.edit') }}" class="btn btn-primary">
+            <i class="bi bi-pencil-square me-1"></i>
+            Cập nhật thông tin
+        </a>
+    @endif
+</div>
+
 <div class="row g-4 align-items-start">
     <div class="col-lg-3">
         <div class="card shadow-sm h-100">
@@ -285,6 +326,15 @@
                 </div>
             </div>
         </div>
+        <div class="alert alert-info mt-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <div>
+                    Thông tin về gia đình và tài sản được hiển thị ở trang riêng. Sử dụng nút
+                    <strong>"Xem quan hệ gia đình"</strong> để truy cập.
+                </div>
+            </div>
+        </div>          
     </div>
 </div>
 @endsection

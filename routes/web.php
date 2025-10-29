@@ -1,20 +1,23 @@
 <?php
 
+use App\Http\Controllers\FamilyInfoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PersonalHistoryController;
 use App\Http\Controllers\PersonalInfoController;
+use App\Http\Controllers\TrainingInfoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\IntroController;
 use App\Http\Controllers\Admin\AdminConfigController;
-/**use App\Http\Controllers\Auth\AuthenticatedSessionController;**/
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /**Route::get('/', function () {
     return view('welcome');
 }); **/
-Route::get('/', [HomeController::class, 'index'])->name('home'); 
+/**Route::get('/', [HomeController::class, 'index'])->name('home'); **/
 /**Route::middleware('guest')->get('/', [AuthenticatedSessionController::class, 'create'])->name('home');**/
-/**Route::redirect('/', '/login')->name('home');**/
+Route::redirect('/', '/cds/public/login')->name('home');
 
 
 
@@ -28,6 +31,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/scientific-profile', [PersonalInfoController::class, 'show'])->name('scientific-profiles.show');
+
+    Route::get('/scientific-profile/family', [FamilyInfoController::class, 'index'])->name('scientific-profiles.family');
+
+    Route::get('/scientific-profile/history', [PersonalHistoryController::class, 'index'])->name('scientific-profiles.history');
+
+    Route::get('/scientific-profile/training', [TrainingInfoController::class, 'index'])->name('scientific-profiles.training');
+    
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');
 });

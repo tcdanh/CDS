@@ -49,8 +49,8 @@
                                     alt="User Image"
                                     />
                                     <p>
-                                    {{ Auth::user()->name }} - Vice Director
-                                    <small>Member since Apr. 2025</small>
+                                    {{ Auth::user()->name }} - {{ Auth::user()->role_id }}
+                                    <small>Member since {{ Auth::user()->created_at }}</small>
                                     </p>
                                 </li>
                                 <!--end::User Image-->
@@ -58,7 +58,7 @@
                                 <li class="user-body">
                                     <!--begin::Row-->
                                     <div class="row">
-                                        <div class="col-4 text-center"><a href="#">Lý lịch KH</a></div>
+                                        <!--div class="col-4 text-center"><a href="#">Lý lịch KH</a></div-->
                                         <!--div class="col-4 text-center"><a href="#">Sales</a></div>
                                         <div class="col-4 text-center"><a href="#">Friends</a></divd-->
                                     </div>

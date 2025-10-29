@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class PersonalInfo extends Model
 {
@@ -75,5 +78,69 @@ class PersonalInfo extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function familyMembers(): HasMany
+    {
+        return $this->hasMany(FamilyMember::class)->orderBy('position')->orderBy('id');
+    }
+
+    public function immediateFamilyMembers(): HasMany
+    {
+        return $this->hasMany(FamilyMember::class)
+            ->where('side', FamilyMember::SIDE_SELF)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function spouseFamilyMembers(): HasMany
+    {
+        return $this->hasMany(FamilyMember::class)
+            ->where('side', FamilyMember::SIDE_SPOUSE)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function familyAssets(): HasMany
+    {
+        return $this->hasMany(FamilyAsset::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function personalHistory(): HasOne
+    {
+        return $this->hasOne(PersonalHistory::class);
+    }
+
+    public function trainingRecords(): HasMany
+    {
+        return $this->hasMany(TrainingRecord::class)
+            ->orderBy('category')
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (! $this->avatar_path) {
+            return asset('images/profile-placeholder.svg');
+        }
+
+        if (Str::startsWith($this->avatar_path, ['http://', 'https://', '//'])) {
+            return $this->avatar_path;
+        }
+
+        $relativePath = ltrim($this->avatar_path, '/');
+
+        if (file_exists(public_path($relativePath))) {
+            return asset($relativePath);
+        }
+
+        if (Str::startsWith($relativePath, ['uploads/', 'storage/', 'images/', 'assets/'])) {
+            return asset($relativePath);
+        }
+
+        return Storage::disk('public')->url($this->avatar_path);
     }
 }
