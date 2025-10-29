@@ -111,7 +111,7 @@
                             </li>
                         @endforeach
                     </ul>
-                    <!--p> Đang cập nhật </p-->
+                    <p> Đang cập nhật </p>
                 </div>
             </div>
         </div>

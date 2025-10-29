@@ -36,7 +36,7 @@
                                 </p>
                                 </a>
                             </li>
-                            <li class="nav-item menu-open">
+                            <!--li class="nav-item menu-open">
                                 <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-filetype-js"></i>
                                 <p>
@@ -64,7 +64,7 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
+                            </li-->
                             <!-- Project mgt -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
@@ -87,13 +87,126 @@
                                 </a> 
                             </li>
                             <!-- End: Education mgt -->
+                            <!-- Administration mgt -->
+                            @php
+                                $personalInfoActive = request()->routeIs('scientific-profiles.show', 'scientific-profiles.edit', 'scientific-profiles.update');
+                                $familyInfoActive = request()->routeIs('scientific-profiles.family');
+                                $historyInfoActive = request()->routeIs('scientific-profiles.history');
+                                $trainingInfoActive = request()->routeIs('scientific-profiles.training');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive;
+                            @endphp
+                            <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
+                                <!--a href="#" class="nav-link"-->
+                                <a href="#" class="nav-link {{ $profileMenuOpen ? 'active' : '' }}">
+                                <i class="nav-icon bi bi-person-square"></i>
+                                <p>
+                                    Sơ yếu lý lịch
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                                </a> 
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <!--a href="{{ route('scientific-profiles.show') }}" class="nav-link {{ request()->routeIs('scientific-profiles.*') ? 'active' : '' }}"-->
+                                        <a href="{{ route('scientific-profiles.show') }}" class="nav-link {{ $personalInfoActive ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Thông tin cá nhân</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <!--a href="{{ route('scientific-profiles.family') }}" class="nav-link {{ request()->routeIs('profiles.family') || request()->routeIs('scientific-profiles.family') ? 'active' : ''  }}"-->
+                                        <a href="{{ route('scientific-profiles.family') }}" class="nav-link {{ $familyInfoActive ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Gia đình</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('scientific-profiles.history') }}" class="nav-link {{ $historyInfoActive ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Lịch sử bản thân</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{{ route('scientific-profiles.training') }}" class="nav-link {{ $trainingInfoActive ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quá trình đào tạo</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quá trình công tác</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Quy hoạch</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Giảng dạy</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Đề tài dự án</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Giải thưởng</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Xuất bản & SHTT</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Lương - Phụ cấp</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Hoạt động</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link ">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Khen thưởng - Kỷ luật</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- End: Administration mgt -->
+
+                            <!-- Lich công tac -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-calendar-day"></i>
+                                <p>Lịch công tác</p>
+                                </a>
+                            </li>
+                            <!-- End: Lich công tac -->
+
                             <!-- Admin config -->
+                            @if (auth()->check() && auth()->user()->isAdmin())
                             <li class="nav-item">
                                 <a href="{{ route('admin_setting.index') }}" class="nav-link">
                                 <i class="nav-icon bi bi-patch-check-fill"></i>
                                 <p>Admin config</p>
                                 </a>
                             </li>
+                            @endif
                             <!-- End admin config --> 
                         </ul>
                         <!--end::Sidebar Menu-->

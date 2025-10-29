@@ -25,7 +25,7 @@ class AdminConfigController extends Controller
         ]);
 
         $user = \App\Models\User::findOrFail($id);
-        $user->id_role = $request->id_role;
+        $user->role_id = $request->id_role;
         $user->invisible = $request->invisible;
         $user->save();
 

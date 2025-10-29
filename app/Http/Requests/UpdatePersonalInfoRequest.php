@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdatePersonalInfoRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        // Chỉ cho phép khi có người dùng đăng nhập
+        return $this->user() !== null;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'full_name' => ['required', 'string', 'max:255'],
+            'alternate_name' => ['nullable', 'string', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+
+            // ✅ Enum cho giới tính (male/female)
+            'gender' => ['nullable', Rule::in(['male', 'female'])],
+
+            'birth_place' => ['nullable', 'string', 'max:255'],
+            'hometown' => ['nullable', 'string', 'max:255'],
+            'residence' => ['nullable', 'string', 'max:255'],
+            'cccd_number' => ['nullable', 'string', 'max:50'],
+            'cccd_issued_date' => ['nullable', 'date'],
+            'phone_number' => ['nullable', 'string', 'max:30'],
+            'ethnicity' => ['nullable', 'string', 'max:100'],
+            'religion' => ['nullable', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'tax_code' => ['nullable', 'string', 'max:50'],
+            'health_insurance_number' => ['nullable', 'string', 'max:50'],
+            'social_insurance_number' => ['nullable', 'string', 'max:50'],
+            'employment_start_date' => ['nullable', 'date'],
+            'organization_name' => ['nullable', 'string', 'max:255'],
+            'contract_type' => ['nullable', 'string', 'max:100'],
+            'main_job_title' => ['nullable', 'string', 'max:255'],
+            'professional_title' => ['nullable', 'string', 'max:255'],
+            'expertise' => ['nullable', 'string', 'max:255'],
+            'previous_job' => ['nullable', 'string', 'max:255'],
+            'youth_union_joined_at' => ['nullable', 'date'],
+            'trade_union_joined_at' => ['nullable', 'date'],
+            'communist_party_joined_at' => ['nullable', 'date'],
+            'army_enlisted_at' => ['nullable', 'date'],
+            'army_discharged_at' => ['nullable', 'date'],
+            'highest_army_rank' => ['nullable', 'string', 'max:255'],
+            'general_education_level' => ['nullable', 'string', 'max:255'],
+            'highest_academic_level' => ['nullable', 'string', 'max:255'],
+            'highest_academic_year' => ['nullable', 'digits:4'],
+            'graduation_major' => ['nullable', 'string', 'max:255'],
+            'state_honors' => ['nullable', 'string', 'max:255'],
+            'state_honors_year' => ['nullable', 'digits:4'],
+            'academic_title' => ['nullable', 'string', 'max:255'],
+            'academic_title_year' => ['nullable', 'digits:4'],
+            'professor_council' => ['nullable', 'string', 'max:255'],
+            'health_status' => ['nullable', 'string', 'max:255'],
+            'blood_group' => ['nullable', 'string', 'max:10'],
+            'height' => ['nullable', 'string', 'max:10'],
+            'weight' => ['nullable', 'string', 'max:10'],
+            'teaching_field' => ['nullable', 'string', 'max:255'],
+            'research_field' => ['nullable', 'string', 'max:255'],
+            'avatar' => ['nullable', 'image', 'max:2048'], // max = 2MB
+            'family_members' => ['nullable', 'array'],
+            'family_members.*' => ['nullable', 'array'],
+            'family_members.*.*.relationship' => ['nullable', 'string', 'max:100'],
+            'family_members.*.*.full_name' => ['nullable', 'string', 'max:255'],
+            'family_members.*.*.birth_year' => ['nullable', 'digits:4'],
+            'family_members.*.*.hometown' => ['nullable', 'string', 'max:255'],
+            'family_members.*.*.residence' => ['nullable', 'string', 'max:255'],
+            'family_members.*.*.occupation' => ['nullable', 'string', 'max:255'],
+            'family_members.*.*.workplace' => ['nullable', 'string', 'max:255'],
+            'family_members.*.*.notes' => ['nullable', 'string', 'max:1000'],
+            'family_members.*.*.position' => ['nullable', 'integer', 'min:0'],
+            'family_assets' => ['nullable', 'array'],
+            'family_assets.*.asset_description' => ['nullable', 'string', 'max:2000'],
+            'family_assets.*.asset_address' => ['nullable', 'string', 'max:255'],
+            'family_assets.*.notes' => ['nullable', 'string', 'max:1000'],
+            'family_assets.*.position' => ['nullable', 'integer', 'min:0'],
+            'personal_history' => ['nullable', 'array'],
+            'personal_history.imprisonment_history' => ['nullable', 'string', 'max:4000'],
+            'personal_history.old_regime_roles' => ['nullable', 'string', 'max:4000'],
+            'personal_history.foreign_relations' => ['nullable', 'string', 'max:4000'],
+            'formal_training' => ['nullable', 'array'],
+            'formal_training.*.timeframe' => ['nullable', 'string', 'max:255'],
+            'formal_training.*.institution' => ['nullable', 'string', 'max:255'],
+            'formal_training.*.major' => ['nullable', 'string', 'max:255'],
+            'formal_training.*.training_form' => ['nullable', 'string', 'max:255'],
+            'formal_training.*.qualification' => ['nullable', 'string', 'max:255'],
+            'formal_training.*.position' => ['nullable', 'integer', 'min:0'],
+            'professional_development' => ['nullable', 'array'],
+            'professional_development.*.program_name' => ['nullable', 'string', 'max:255'],
+            'professional_development.*.certificate' => ['nullable', 'string', 'max:255'],
+            'professional_development.*.institution' => ['nullable', 'string', 'max:255'],
+            'professional_development.*.year_awarded' => ['nullable', 'digits:4'],
+            'professional_development.*.position' => ['nullable', 'integer', 'min:0'],
+            'management_training' => ['nullable', 'array'],
+            'management_training.*.program_name' => ['nullable', 'string', 'max:255'],
+            'management_training.*.certificate' => ['nullable', 'string', 'max:255'],
+            'management_training.*.institution' => ['nullable', 'string', 'max:255'],
+            'management_training.*.year_awarded' => ['nullable', 'digits:4'],
+            'management_training.*.position' => ['nullable', 'integer', 'min:0'],
+            'political_theory' => ['nullable', 'array'],
+            'political_theory.*.level' => ['nullable', 'string', 'max:255'],
+            'political_theory.*.institution' => ['nullable', 'string', 'max:255'],
+            'political_theory.*.year_awarded' => ['nullable', 'digits:4'],
+            'political_theory.*.position' => ['nullable', 'integer', 'min:0'],
+            'national_defense' => ['nullable', 'array'],
+            'national_defense.*.program_name' => ['nullable', 'string', 'max:255'],
+            'national_defense.*.institution' => ['nullable', 'string', 'max:255'],
+            'national_defense.*.year_awarded' => ['nullable', 'digits:4'],
+            'national_defense.*.position' => ['nullable', 'integer', 'min:0'],
+            'foreign_language' => ['nullable', 'array'],
+            'foreign_language.*.language' => ['nullable', 'string', 'max:255'],
+            'foreign_language.*.level' => ['nullable', 'string', 'max:255'],
+            'foreign_language.*.certificate' => ['nullable', 'string', 'max:255'],
+            'foreign_language.*.institution' => ['nullable', 'string', 'max:255'],
+            'foreign_language.*.year_awarded' => ['nullable', 'digits:4'],
+            'foreign_language.*.position' => ['nullable', 'integer', 'min:0'],
+            'informatics' => ['nullable', 'array'],
+            'informatics.*.program_name' => ['nullable', 'string', 'max:255'],
+            'informatics.*.level' => ['nullable', 'string', 'max:255'],
+            'informatics.*.certificate' => ['nullable', 'string', 'max:255'],
+            'informatics.*.institution' => ['nullable', 'string', 'max:255'],
+            'informatics.*.year_awarded' => ['nullable', 'digits:4'],
+            'informatics.*.position' => ['nullable', 'integer', 'min:0'],
+        ];
+    }
+}

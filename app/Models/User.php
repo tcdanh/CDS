@@ -52,4 +52,30 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+    // Helper linh hoạt: nhận 'admin' hoặc ['admin','manager']
+    public function hasRole(string|array $roles): bool
+    {
+        if (!$this->role) return false;
+        $current = $this->role->name ?? $this->role->label;
+
+        if (is_array($roles)) {
+            return in_array($current, $roles, true);
+        }
+        return $current === $roles;
+    }
+
+    // Tiện ích
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Admin');
+    }
+    
+    public function scientificProfile()
+    {
+        return $this->hasOne(ScientificProfile::class);
+    }
+    public function personalInfo()
+    {
+        return $this->hasOne(PersonalInfo::class);
+    }
 }

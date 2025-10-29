@@ -1,0 +1,382 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Concerns\InteractsWithPersonalInfo;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdatePersonalInfoRequest;
+use App\Models\PersonalInfo;
+use App\Models\FamilyMember;
+use App\Models\TrainingRecord;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
+
+class PersonalInfoController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    use InteractsWithPersonalInfo;
+
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Request $request): View
+    {
+        //$info = $this->ensureInfo($request->user());
+
+        $currentUser = $request->user();
+        $canManageProfiles = $this->userCanManageProfiles($currentUser);
+
+        if ($canManageProfiles && ! $request->filled('user')) {
+            $personalInfos = PersonalInfo::with(['user:id,name'])
+                ->orderByDesc('updated_at')
+                ->orderBy('full_name')
+                ->get();
+
+            return view('scientific_profiles.index', [
+                'personalInfos' => $personalInfos,
+                'currentUser' => $currentUser,
+                'mode' => 'personal',
+            ]);
+        }
+
+        $targetUser = $currentUser;
+
+        if ($request->filled('user')) {
+            $requestedUserId = (int) $request->query('user');
+
+            if (! $canManageProfiles && $requestedUserId !== $currentUser->getKey()) {
+                abort(403);
+            }
+
+            $targetUser = User::findOrFail($requestedUserId);
+        }
+
+        $info = $this->ensureInfo($targetUser);
+        //return view('scientific_profiles.show', [
+        //    'info' => $info,
+        //]);
+        return view('scientific_profiles.show', [
+            'info' => $info,
+            'canEdit' => $targetUser->is($currentUser),
+            'canManageProfiles' => $canManageProfiles,
+            'targetUser' => $targetUser,
+        ]);
+    }
+
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Request $request): View
+    {
+        $info = $this->ensureInfo($request->user());
+        $info->load([
+            'immediateFamilyMembers', 
+            'spouseFamilyMembers', 
+            'familyAssets', 
+            'personalHistory',
+            'trainingRecords' => function ($query) {
+                $query->orderBy('category')->orderBy('position')->orderBy('id');
+            },
+        ]);
+
+        return view('scientific_profiles.edit', [
+            'info' => $info,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePersonalInfoRequest $request): RedirectResponse
+    {
+        $info = $this->ensureInfo($request->user());
+        $data = $request->validated();
+
+        if ($request->hasFile('avatar')) {
+            // Xóa ảnh cũ nếu có
+            if ($info->avatar_path && file_exists(public_path($info->avatar_path))) {
+                unlink(public_path($info->avatar_path));
+            }
+
+            // Tạo thư mục nếu chưa có
+            if (!file_exists(public_path('uploads/avatars'))) {
+                mkdir(public_path('uploads/avatars'), 0777, true);
+            }
+
+            // Lưu file mới
+            $file = $request->file('avatar');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/avatars'), $fileName);
+
+            // Lưu đường dẫn vào DB
+            $data['avatar_path'] = 'uploads/avatars/' . $fileName;
+        }
+
+        $familyMembers = collect($request->input('family_members', []));
+        $familyAssets = collect($request->input('family_assets', []));
+        $historyInput = collect($request->input('personal_history', []))
+            ->only(['imprisonment_history', 'old_regime_roles', 'foreign_relations'])
+            ->map(function ($value) {
+                if (is_string($value)) {
+                    $trimmed = trim($value);
+
+                    return $trimmed === '' ? null : $trimmed;
+                }
+
+                return $value;
+            });
+
+        //unset($data['avatar']);
+        unset(
+            $data['avatar'], 
+            $data['family_members'], 
+            $data['family_assets'], 
+            $data['personal_history'],
+            $data['formal_training'],
+            $data['professional_development'],
+            $data['management_training'],
+            $data['political_theory'],
+            $data['national_defense'],
+            $data['foreign_language'],
+            $data['informatics']
+        );
+
+        $info->fill($data);
+        $info->save();
+
+        $normalizedFamilyMembers = $familyMembers
+            ->mapWithKeys(function ($members, $group) {
+                $side = $group === FamilyMember::SIDE_SPOUSE ? FamilyMember::SIDE_SPOUSE : FamilyMember::SIDE_SELF;
+
+                return [$side => collect($members ?? [])];
+            });
+
+        $records = collect();
+
+        foreach ([FamilyMember::SIDE_SELF, FamilyMember::SIDE_SPOUSE] as $side) {
+            if (! $normalizedFamilyMembers->has($side)) {
+                continue;
+            }
+
+            $sideMembers = $normalizedFamilyMembers->get($side)
+                ->filter(function ($member) {
+                    if (! is_array($member)) {
+                        return false;
+                    }
+
+                    if (! filled(data_get($member, 'full_name'))) {
+                        return false;
+                    }
+
+                    return collect($member)
+                        ->only(['relationship', 'full_name', 'birth_year', 'hometown', 'residence', 'occupation', 'workplace', 'notes'])
+                        ->filter(fn($value) => filled($value))
+                        ->isNotEmpty();
+                })
+                ->values()
+                ->map(function ($member, $index) use ($side) {
+                    $position = isset($member['position']) && is_numeric($member['position'])
+                        ? (int) $member['position']
+                        : $index;
+
+                    return [
+                        'side' => $side,
+                        'relationship' => $member['relationship'] ?? null,
+                        'full_name' => $member['full_name'] ?? null,
+                        'birth_year' => isset($member['birth_year']) && $member['birth_year'] !== ''
+                            ? (int) $member['birth_year']
+                            : null,
+                        'hometown' => $member['hometown'] ?? null,
+                        'residence' => $member['residence'] ?? null,
+                        'occupation' => $member['occupation'] ?? null,
+                        'workplace' => $member['workplace'] ?? null,
+                        'notes' => $member['notes'] ?? null,
+                        'position' => $position,
+                    ];
+                });
+
+            $records = $records->merge($sideMembers);
+        }
+
+        $info->familyMembers()->delete();
+
+        if ($records->isNotEmpty()) {
+            $info->familyMembers()->createMany($records->all());
+        }
+
+        $assetRecords = $familyAssets
+            ->filter(function ($asset) {
+                if (! is_array($asset)) {
+                    return false;
+                }
+
+                return collect($asset)
+                    ->only(['asset_description', 'asset_address', 'notes'])
+                    ->filter(fn($value) => filled($value))
+                    ->isNotEmpty();
+            })
+            ->values()
+            ->map(function ($asset, $index) {
+                $position = isset($asset['position']) && is_numeric($asset['position'])
+                    ? (int) $asset['position']
+                    : $index;
+
+                return [
+                    'asset_description' => $asset['asset_description'] ?? null,
+                    'asset_address' => $asset['asset_address'] ?? null,
+                    'notes' => $asset['notes'] ?? null,
+                    'position' => $position,
+                ];
+            });
+
+        $info->familyAssets()->delete();
+
+        if ($assetRecords->isNotEmpty()) {
+            $info->familyAssets()->createMany($assetRecords->all());
+        }
+
+        if ($historyInput->filter(fn ($value) => filled($value))->isNotEmpty()) {
+            $info->personalHistory()->updateOrCreate([], $historyInput->all());
+        } else {
+            $info->personalHistory()->delete();
+        }
+
+        $trainingGroups = [
+            'formal_training' => [
+                'category' => TrainingRecord::CATEGORY_FORMAL_TRAINING,
+                'fields' => ['timeframe', 'institution', 'major', 'training_form', 'qualification'],
+            ],
+            'professional_development' => [
+                'category' => TrainingRecord::CATEGORY_PROFESSIONAL_DEVELOPMENT,
+                'fields' => ['program_name', 'certificate', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+            'management_training' => [
+                'category' => TrainingRecord::CATEGORY_MANAGEMENT_TRAINING,
+                'fields' => ['program_name', 'certificate', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+            'political_theory' => [
+                'category' => TrainingRecord::CATEGORY_POLITICAL_THEORY,
+                'fields' => ['level', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+            'national_defense' => [
+                'category' => TrainingRecord::CATEGORY_NATIONAL_DEFENSE,
+                'fields' => ['program_name', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+            'foreign_language' => [
+                'category' => TrainingRecord::CATEGORY_FOREIGN_LANGUAGE,
+                'fields' => ['language', 'level', 'certificate', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+            'informatics' => [
+                'category' => TrainingRecord::CATEGORY_INFORMATICS,
+                'fields' => ['program_name', 'level', 'certificate', 'institution', 'year_awarded'],
+                'integer_fields' => ['year_awarded'],
+            ],
+        ];
+
+        $info->trainingRecords()
+            ->whereIn('category', collect($trainingGroups)->pluck('category'))
+            ->delete();
+
+        foreach ($trainingGroups as $inputKey => $config) {
+            $entries = collect($request->input($inputKey, []))
+                ->filter(function ($entry) use ($config) {
+                    if (! is_array($entry)) {
+                        return false;
+                    }
+
+                    return collect($config['fields'])
+                        ->map(fn ($field) => $entry[$field] ?? null)
+                        ->contains(function ($value) {
+                            if (is_string($value)) {
+                                return trim($value) !== '';
+                            }
+
+                            return filled($value);
+                        });
+                })
+                ->values()
+                ->map(function ($entry, $index) use ($config) {
+                    $payload = [
+                        'category' => $config['category'],
+                        'position' => isset($entry['position']) && is_numeric($entry['position'])
+                            ? (int) $entry['position']
+                            : $index,
+                    ];
+
+                    foreach ($config['fields'] as $field) {
+                        $value = $entry[$field] ?? null;
+
+                        if (in_array($field, $config['integer_fields'] ?? [], true)) {
+                            $value = $value !== null && $value !== '' ? (int) $value : null;
+                        } elseif (is_string($value)) {
+                            $value = trim($value);
+                            $value = $value === '' ? null : $value;
+                        }
+
+                        $payload[$field] = $value;
+                    }
+
+                    return $payload;
+                });
+
+            if ($entries->isNotEmpty()) {
+                $info->trainingRecords()->createMany($entries->all());
+            }
+        }
+
+
+        return redirect()
+            ->route('scientific-profiles.show')
+            ->with('status', 'personal-info-updated');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+
+    protected function ensureInfo(User $user): PersonalInfo
+    {
+        return $user->personalInfo()->firstOrCreate([], [
+            'full_name' => $user->name,
+            'email' => $user->email,
+        ]);
+    }
+}

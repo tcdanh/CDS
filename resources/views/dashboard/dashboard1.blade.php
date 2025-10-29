@@ -89,8 +89,8 @@
                 <!--begin::Small Box Widget 4-->
                 <div class="small-box text-bg-danger">
                   <div class="inner">
-                    <h3>456<sup class="fs-5">K</sup></h3>
-                    <p>Incomme (both)</p>
+                    <h3>14<sup class="fs-5"></sup></h3>
+                    <p>Employees</p>
                   </div>
                   <svg
                     class="small-box-icon"

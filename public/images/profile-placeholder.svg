@@ -1,0 +1,12 @@
+<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title">
+  <title>Ảnh đại diện mặc định</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#22d3ee" />
+    </linearGradient>
+  </defs>
+  <circle cx="80" cy="80" r="80" fill="url(#bg)" />
+  <circle cx="80" cy="60" r="32" fill="#fff" opacity="0.85" />
+  <path d="M32 138c8-32 40-42 48-42h0c8 0 40 10 48 42" fill="#fff" opacity="0.85" />
+</svg>
