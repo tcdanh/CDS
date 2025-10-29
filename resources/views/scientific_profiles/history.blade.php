@@ -12,6 +12,8 @@
     $personalRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $familyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $history = $history ?? optional($info)->personalHistory;
+    $workRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $trainingRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
 @endphp
 
 @if (session('status') === 'personal-info-updated')
@@ -37,6 +39,14 @@
         <a href="{{ route('scientific-profiles.family', $familyRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-people me-1"></i>
             Xem quan hệ gia đình
+        </a>
+        <a href="{{ route('scientific-profiles.work', $workRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-briefcase me-1"></i>
+            Quá trình công tác
+        </a>
+        <a href="{{ route('scientific-profiles.training', $trainingRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-mortarboard me-1"></i>
+            Quá trình đào tạo
         </a>
     </div>
     @if ($canEdit)

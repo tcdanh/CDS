@@ -12,6 +12,7 @@
     $personalRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $familyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $workRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
 
     $records = optional($info)->trainingRecords ?? collect();
     $grouped = $records instanceof \Illuminate\Support\Collection ? $records->groupBy('category') : collect();
@@ -52,6 +53,10 @@
         <a href="{{ route('scientific-profiles.history', $historyRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-journal-text me-1"></i>
             Xem lịch sử bản thân
+        </a>
+        <a href="{{ route('scientific-profiles.work', $workRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-briefcase me-1"></i>
+            Quá trình công tác
         </a>
     </div>
     @if ($canEdit)

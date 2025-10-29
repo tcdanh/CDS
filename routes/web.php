@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PersonalHistoryController;
 use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\TrainingInfoController;
+use App\Http\Controllers\WorkInfoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
@@ -37,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scientific-profile/history', [PersonalHistoryController::class, 'index'])->name('scientific-profiles.history');
 
     Route::get('/scientific-profile/training', [TrainingInfoController::class, 'index'])->name('scientific-profiles.training');
+    Route::get('/scientific-profile/work', [WorkInfoController::class, 'index'])->name('scientific-profiles.work');
     
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');

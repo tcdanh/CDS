@@ -102,6 +102,9 @@ class PersonalInfoController extends Controller
             'spouseFamilyMembers', 
             'familyAssets', 
             'personalHistory',
+            'workExperiences' => function ($query) {
+                $query->orderBy('position')->orderBy('id');
+            },
             'trainingRecords' => function ($query) {
                 $query->orderBy('category')->orderBy('position')->orderBy('id');
             },
@@ -142,6 +145,7 @@ class PersonalInfoController extends Controller
 
         $familyMembers = collect($request->input('family_members', []));
         $familyAssets = collect($request->input('family_assets', []));
+        $workExperiences = collect($request->input('work_experiences', []));
         $historyInput = collect($request->input('personal_history', []))
             ->only(['imprisonment_history', 'old_regime_roles', 'foreign_relations'])
             ->map(function ($value) {
@@ -159,6 +163,7 @@ class PersonalInfoController extends Controller
             $data['avatar'], 
             $data['family_members'], 
             $data['family_assets'], 
+            $data['work_experiences'],
             $data['personal_history'],
             $data['formal_training'],
             $data['professional_development'],
@@ -261,6 +266,58 @@ class PersonalInfoController extends Controller
 
         if ($assetRecords->isNotEmpty()) {
             $info->familyAssets()->createMany($assetRecords->all());
+        }
+
+        $experienceRecords = $workExperiences
+            ->filter(function ($experience) {
+                if (! is_array($experience)) {
+                    return false;
+                }
+
+                return collect($experience)
+                    ->only(['from_period', 'to_period', 'unit_name', 'job_title', 'notes'])
+                    ->map(function ($value) {
+                        if (is_string($value)) {
+                            $value = trim($value);
+
+                            return $value === '' ? null : $value;
+                        }
+
+                        return $value;
+                    })
+                    ->filter(fn ($value) => filled($value))
+                    ->isNotEmpty();
+            })
+            ->values()
+            ->map(function ($experience, $index) {
+                $position = isset($experience['position']) && is_numeric($experience['position'])
+                    ? (int) $experience['position']
+                    : $index;
+
+                return [
+                    'from_period' => isset($experience['from_period']) && is_string($experience['from_period'])
+                        ? trim($experience['from_period']) ?: null
+                        : ($experience['from_period'] ?? null),
+                    'to_period' => isset($experience['to_period']) && is_string($experience['to_period'])
+                        ? trim($experience['to_period']) ?: null
+                        : ($experience['to_period'] ?? null),
+                    'unit_name' => isset($experience['unit_name']) && is_string($experience['unit_name'])
+                        ? trim($experience['unit_name']) ?: null
+                        : ($experience['unit_name'] ?? null),
+                    'job_title' => isset($experience['job_title']) && is_string($experience['job_title'])
+                        ? trim($experience['job_title']) ?: null
+                        : ($experience['job_title'] ?? null),
+                    'notes' => isset($experience['notes']) && is_string($experience['notes'])
+                        ? trim($experience['notes']) ?: null
+                        : ($experience['notes'] ?? null),
+                    'position' => $position,
+                ];
+            });
+
+        $info->workExperiences()->delete();
+
+        if ($experienceRecords->isNotEmpty()) {
+            $info->workExperiences()->createMany($experienceRecords->all());
         }
 
         if ($historyInput->filter(fn ($value) => filled($value))->isNotEmpty()) {

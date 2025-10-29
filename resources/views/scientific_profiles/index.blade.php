@@ -55,6 +55,19 @@
             'action_icon' => 'bi-mortarboard',
             'action_title' => 'Xem quá trình đào tạo',
         ],
+        'work' => [
+            'title' => 'Quá trình công tác',
+            'heading' => 'Danh sách quá trình công tác',
+            'description' => 'Theo dõi quá trình công tác tại các đơn vị của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.work',
+            'profile_icon' => 'bi-briefcase',
+            'action_route' => 'scientific-profiles.work',
+            'action_icon' => 'bi-briefcase',
+            'action_title' => 'Xem quá trình công tác',
+        ],
     ];
 
     $config = $config[$mode] ?? $config['personal'];
@@ -117,6 +130,10 @@
                                 @elseif ($mode === 'training')
                                     <div class="text-muted small">
                                         {{ $personalInfo->training_records_count ?? 0 }} mục đào tạo & chứng chỉ
+                                    </div>
+                                @elseif ($mode === 'work')
+                                    <div class="text-muted small">
+                                        {{ $personalInfo->work_experiences_count ?? 0 }} mục công tác
                                     </div>
                                 @else
                                     <div class="text-muted small">{{ $personalInfo->main_job_title ?? '—' }}</div>

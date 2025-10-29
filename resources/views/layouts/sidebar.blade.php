@@ -65,35 +65,14 @@
                                     </li>
                                 </ul>
                             </li-->
-                            <!-- Project mgt -->
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-box-seam-fill"></i>
-                                <p>
-                                    Project Management
-                                <i class="nav-arrow bi bi-chevron-right"></i>
-                                </p>
-                                </a> 
-                            </li>
-                            <!-- End: Project mgt -->
-                            <!-- Education mgt -->
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-palette"></i>
-                                <p>
-                                    Education Management
-                                <i class="nav-arrow bi bi-chevron-right"></i>
-                                </p>
-                                </a> 
-                            </li>
-                            <!-- End: Education mgt -->
-                            <!-- Administration mgt -->
+                            
                             @php
                                 $personalInfoActive = request()->routeIs('scientific-profiles.show', 'scientific-profiles.edit', 'scientific-profiles.update');
                                 $familyInfoActive = request()->routeIs('scientific-profiles.family');
                                 $historyInfoActive = request()->routeIs('scientific-profiles.history');
                                 $trainingInfoActive = request()->routeIs('scientific-profiles.training');
-                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive;
+                                $workInfoActive = request()->routeIs('scientific-profiles.work');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive;
                             @endphp
                             <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
                                 <!--a href="#" class="nav-link"-->
@@ -132,7 +111,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.work') }}" class="nav-link {{ $workInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Quá trình công tác</p>
                                         </a>
@@ -187,7 +166,29 @@
                                     </li>
                                 </ul>
                             </li>
-                            <!-- End: Administration mgt -->
+                            
+                            <!-- Project mgt -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-box-seam-fill"></i>
+                                <p>
+                                    Project Management
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                                </a> 
+                            </li>
+                            <!-- End: Project mgt -->
+                            <!-- Education mgt -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-palette"></i>
+                                <p>
+                                    Education Management
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                                </a> 
+                            </li>
+                            <!-- End: Education mgt -->
 
                             <!-- Lich công tac -->
                             <li class="nav-item">
