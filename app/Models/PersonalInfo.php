@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
+use App\Models\WorkExperience;
+
 class PersonalInfo extends Model
 {
     use HasFactory;
@@ -117,6 +119,13 @@ class PersonalInfo extends Model
     {
         return $this->hasMany(TrainingRecord::class)
             ->orderBy('category')
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function workExperiences(): HasMany
+    {
+        return $this->hasMany(WorkExperience::class)
             ->orderBy('position')
             ->orderBy('id');
     }
