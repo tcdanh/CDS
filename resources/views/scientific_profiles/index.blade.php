@@ -68,6 +68,19 @@
             'action_icon' => 'bi-briefcase',
             'action_title' => 'Xem quá trình công tác',
         ],
+        'planning' => [
+            'title' => 'Quy hoạch',
+            'heading' => 'Danh sách quy hoạch',
+            'description' => 'Theo dõi thông tin quy hoạch chức danh của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.planning',
+            'profile_icon' => 'bi-diagram-3',
+            'action_route' => 'scientific-profiles.planning',
+            'action_icon' => 'bi-diagram-3',
+            'action_title' => 'Xem thông tin quy hoạch',
+        ],
     ];
 
     $config = $config[$mode] ?? $config['personal'];
@@ -134,6 +147,10 @@
                                 @elseif ($mode === 'work')
                                     <div class="text-muted small">
                                         {{ $personalInfo->work_experiences_count ?? 0 }} mục công tác
+                                    </div>
+                                @elseif ($mode === 'planning')
+                                    <div class="text-muted small">
+                                        {{ $personalInfo->planning_records_count ?? 0 }} mục quy hoạch
                                     </div>
                                 @else
                                     <div class="text-muted small">{{ $personalInfo->main_job_title ?? '—' }}</div>

@@ -72,7 +72,8 @@
                                 $historyInfoActive = request()->routeIs('scientific-profiles.history');
                                 $trainingInfoActive = request()->routeIs('scientific-profiles.training');
                                 $workInfoActive = request()->routeIs('scientific-profiles.work');
-                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive;
+                                $planningInfoActive = request()->routeIs('scientific-profiles.planning');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive;
                             @endphp
                             <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
                                 <!--a href="#" class="nav-link"-->
@@ -117,7 +118,7 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.planning') }}" class="nav-link {{ $planningInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Quy hoạch</p>
                                         </a>

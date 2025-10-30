@@ -3,6 +3,7 @@
 @section('title', 'Quan hệ gia đình')
 
 @section('content')
+
 @php
     $canEdit = $canEdit ?? true;
     $canManageProfiles = $canManageProfiles ?? false;
@@ -10,13 +11,17 @@
     $targetUser = $targetUser ?? $viewer;
     $viewingOwnProfile = $viewer && $targetUser && $targetUser->is($viewer);
     $personalRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $trainingRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $workRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $planningRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $selfFamily = $info->immediateFamilyMembers;
     $spouseFamily = $info->spouseFamilyMembers;
     $assets = $info->familyAssets;
 @endphp
 
 <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-4">
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         @if ($canManageProfiles)
             <a href="{{ route('scientific-profiles.family') }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left-short me-1"></i>
@@ -26,6 +31,22 @@
         <a href="{{ route('scientific-profiles.show', $personalRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-person-vcard me-1"></i>
             Xem thông tin cá nhân
+        </a>
+        <a href="{{ route('scientific-profiles.history', $historyRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-journal-text me-1"></i>
+            Lịch sử bản thân
+        </a>
+        <a href="{{ route('scientific-profiles.training', $trainingRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-mortarboard me-1"></i>
+            Quá trình đào tạo
+        </a>
+        <a href="{{ route('scientific-profiles.work', $workRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-briefcase me-1"></i>
+            Quá trình công tác
+        </a>
+        <a href="{{ route('scientific-profiles.planning', $planningRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-diagram-3 me-1"></i>
+            Quy hoạch
         </a>
     </div>
     @if ($canEdit)

@@ -13,6 +13,7 @@
     $familyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $trainingRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $planningRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
 
     $experiences = optional($info)->workExperiences ?? collect();
 
@@ -52,6 +53,10 @@
         <a href="{{ route('scientific-profiles.training', $trainingRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-mortarboard me-1"></i>
             Quá trình đào tạo
+        </a>
+        <a href="{{ route('scientific-profiles.planning', $planningRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-diagram-3 me-1"></i>
+            Quy hoạch
         </a>
     </div>
     @if ($canEdit)

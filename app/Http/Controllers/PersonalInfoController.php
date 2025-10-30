@@ -8,6 +8,7 @@ use App\Http\Requests\UpdatePersonalInfoRequest;
 use App\Models\PersonalInfo;
 use App\Models\FamilyMember;
 use App\Models\TrainingRecord;
+use App\Models\PlanningRecord;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -108,6 +109,9 @@ class PersonalInfoController extends Controller
             'trainingRecords' => function ($query) {
                 $query->orderBy('category')->orderBy('position')->orderBy('id');
             },
+            'planningRecords' => function ($query) {
+                $query->orderBy('category')->orderBy('position')->orderBy('id');
+            },
         ]);
 
         return view('scientific_profiles.edit', [
@@ -146,6 +150,7 @@ class PersonalInfoController extends Controller
         $familyMembers = collect($request->input('family_members', []));
         $familyAssets = collect($request->input('family_assets', []));
         $workExperiences = collect($request->input('work_experiences', []));
+        $planningRecordsInput = collect($request->input('planning_records', []));
         $historyInput = collect($request->input('personal_history', []))
             ->only(['imprisonment_history', 'old_regime_roles', 'foreign_relations'])
             ->map(function ($value) {
@@ -171,7 +176,8 @@ class PersonalInfoController extends Controller
             $data['political_theory'],
             $data['national_defense'],
             $data['foreign_language'],
-            $data['informatics']
+            $data['informatics'],
+            $data['planning_records']
         );
 
         $info->fill($data);
@@ -318,6 +324,70 @@ class PersonalInfoController extends Controller
 
         if ($experienceRecords->isNotEmpty()) {
             $info->workExperiences()->createMany($experienceRecords->all());
+        }
+
+        $allowedPlanningCategories = collect(PlanningRecord::categories())->keys();
+
+        $planningRecords = $planningRecordsInput
+            ->filter(function ($records, $category) use ($allowedPlanningCategories) {
+                return $allowedPlanningCategories->contains($category) && is_array($records);
+            })
+            ->map(function ($records) {
+                return collect($records)
+                    ->filter(function ($record) {
+                        if (! is_array($record)) {
+                            return false;
+                        }
+
+                        return collect($record)
+                            ->only(['position_title', 'stage', 'status', 'notes'])
+                            ->map(function ($value) {
+                                if (is_string($value)) {
+                                    $value = trim($value);
+
+                                    return $value === '' ? null : $value;
+                                }
+
+                                return $value;
+                            })
+                            ->filter(fn ($value) => filled($value))
+                            ->isNotEmpty();
+                    })
+                    ->values();
+            })
+            ->filter->isNotEmpty();
+
+        $planningRecordsPayload = collect();
+
+        foreach ($planningRecords as $category => $records) {
+            $records->each(function ($record, $index) use (&$planningRecordsPayload, $category) {
+                $position = isset($record['position']) && is_numeric($record['position'])
+                    ? (int) $record['position']
+                    : $index;
+
+                $planningRecordsPayload->push([
+                    'category' => $category,
+                    'position_title' => isset($record['position_title']) && is_string($record['position_title'])
+                        ? (trim($record['position_title']) ?: null)
+                        : ($record['position_title'] ?? null),
+                    'stage' => isset($record['stage']) && is_string($record['stage'])
+                        ? (trim($record['stage']) ?: null)
+                        : ($record['stage'] ?? null),
+                    'status' => isset($record['status']) && is_string($record['status'])
+                        ? (trim($record['status']) ?: null)
+                        : ($record['status'] ?? null),
+                    'notes' => isset($record['notes']) && is_string($record['notes'])
+                        ? (trim($record['notes']) ?: null)
+                        : ($record['notes'] ?? null),
+                    'position' => $position,
+                ]);
+            });
+        }
+
+        $info->planningRecords()->delete();
+
+        if ($planningRecordsPayload->isNotEmpty()) {
+            $info->planningRecords()->createMany($planningRecordsPayload->all());
         }
 
         if ($historyInput->filter(fn ($value) => filled($value))->isNotEmpty()) {
