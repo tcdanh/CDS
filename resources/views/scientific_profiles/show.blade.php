@@ -14,6 +14,7 @@
     $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $trainingRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $workRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $planningRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
 @endphp
 
 <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-4">
@@ -39,6 +40,10 @@
         <a href="{{ route('scientific-profiles.work', $workRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-briefcase me-1"></i>
             Quá trình công tác
+        </a>
+        <a href="{{ route('scientific-profiles.planning', $planningRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-diagram-3 me-1"></i>
+            Quy hoạch
         </a>
     </div>
     @if ($canEdit)

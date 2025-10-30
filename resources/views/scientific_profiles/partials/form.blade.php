@@ -53,6 +53,66 @@
             ],
         ]);
     }
+
+    $planningCategories = \App\Models\PlanningRecord::categories();
+
+    $existingPlanningRecords = $info->planningRecords ?? collect();
+
+    if (! $existingPlanningRecords instanceof \Illuminate\Support\Collection) {
+        $existingPlanningRecords = collect($existingPlanningRecords);
+    }
+
+    $planningDefaults = $existingPlanningRecords
+        ->groupBy('category')
+        ->map(function ($records) {
+            return $records
+                ->sortBy('position')
+                ->values()
+                ->map(function ($record, $index) {
+                    return [
+                        'position' => $record->position ?? $index,
+                        'position_title' => $record->position_title,
+                        'stage' => $record->stage,
+                        'status' => $record->status,
+                        'notes' => $record->notes,
+                    ];
+                })
+                ->toArray();
+        });
+
+    $planningValues = collect($planningCategories)
+        ->mapWithKeys(function ($label, $category) use ($planningDefaults) {
+            $defaults = $planningDefaults->get($category, []);
+
+            $values = collect(old("planning_records.$category", $defaults))
+                ->map(function ($record, $index) {
+                    $record = is_array($record) ? $record : [];
+
+                    return [
+                        'position' => $record['position'] ?? $index,
+                        'position_title' => $record['position_title'] ?? null,
+                        'stage' => $record['stage'] ?? null,
+                        'status' => $record['status'] ?? null,
+                        'notes' => $record['notes'] ?? null,
+                    ];
+                })
+                ->values();
+
+            if ($values->isEmpty()) {
+                $values = collect([
+                    [
+                        'position' => 0,
+                        'position_title' => null,
+                        'stage' => null,
+                        'status' => null,
+                        'notes' => null,
+                    ],
+                ]);
+            }
+
+            return [$category => $values];
+        });
+
 @endphp
 
 <div class="mb-5">
@@ -237,6 +297,92 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
+    </div>
+</div>
+
+<div class="mb-5">
+    <h5 class="fw-bold text-primary mb-3">Quy hoạch chức danh</h5>
+    <div class="vstack gap-4">
+        @foreach ($planningCategories as $category => $label)
+            @php
+                $entries = $planningValues->get($category, collect());
+                $categoryHint = $category === \App\Models\PlanningRecord::CATEGORY_GOVERNMENT
+                    ? 'Cập nhật thông tin quy hoạch trong hệ thống chính quyền'
+                    : 'Cập nhật thông tin quy hoạch trong tổ chức Đảng';
+            @endphp
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="card-title mb-0">{{ $label }}</h4>
+                        <p class="text-muted small mb-0">{{ $categoryHint }}</p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" data-add-planning-row data-group="{{ $category }}">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Thêm dòng
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">STT</th>
+                                    <th>Đối tượng quy hoạch</th>
+                                    <th style="width: 180px;">Giai đoạn</th>
+                                    <th style="width: 180px;">Trạng thái</th>
+                                    <th>Ghi chú</th>
+                                    <th class="text-center" style="width: 50px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody data-planning-group="{{ $category }}">
+                                @foreach ($entries as $index => $record)
+                                    @php $baseKey = "planning_records.$category.$index"; @endphp
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            <span class="planning-row-order">{{ $loop->iteration }}</span>
+                                            <input type="hidden" data-field="position" name="planning_records[{{ $category }}][{{ $index }}][position]" value="{{ $record['position'] ?? $loop->index }}">
+                                        </td>
+                                        <td>
+                                            @php $field = $baseKey . '.position_title'; @endphp
+                                            <input type="text" class="form-control {{ $errors->has($field) ? 'is-invalid' : '' }}" data-field="position_title" name="planning_records[{{ $category }}][{{ $index }}][position_title]" value="{{ $record['position_title'] ?? '' }}">
+                                            @error($field)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            @php $field = $baseKey . '.stage'; @endphp
+                                            <input type="text" class="form-control {{ $errors->has($field) ? 'is-invalid' : '' }}" data-field="stage" name="planning_records[{{ $category }}][{{ $index }}][stage]" value="{{ $record['stage'] ?? '' }}">
+                                            @error($field)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            @php $field = $baseKey . '.status'; @endphp
+                                            <input type="text" class="form-control {{ $errors->has($field) ? 'is-invalid' : '' }}" data-field="status" name="planning_records[{{ $category }}][{{ $index }}][status]" value="{{ $record['status'] ?? '' }}">
+                                            @error($field)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            @php $field = $baseKey . '.notes'; @endphp
+                                            <input type="text" class="form-control {{ $errors->has($field) ? 'is-invalid' : '' }}" data-field="notes" name="planning_records[{{ $category }}][{{ $index }}][notes]" value="{{ $record['notes'] ?? '' }}">
+                                            @error($field)
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            <button type="button" class="btn btn-link text-danger p-0" data-remove-planning-row>
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
 
@@ -1628,6 +1774,138 @@
                         }
                     });
                 }
+
+                const updateTrainingRowOrder = (tbody) => {
+                    const group = tbody.dataset.trainingGroup;
+
+                    Array.from(tbody.children).forEach((row, index) => {
+                        const orderElement = row.querySelector('.training-row-order');
+
+                        if (orderElement) {
+                            orderElement.textContent = index + 1;
+                        }
+
+                        row.querySelectorAll('[data-field]').forEach((field) => {
+                            const fieldName = field.dataset.field;
+                            field.name = `${group}[${index}][${fieldName}]`;
+
+                            if (fieldName === 'position') {
+                                field.value = index;
+                            }
+                        });
+                    });
+                };
+
+                const addTrainingRow = (group) => {
+                    if (!group) {
+                        return;
+                    }
+
+                    const tbody = document.querySelector(`[data-training-group="${group}"]`);
+                    const template = document.getElementById(`training-row-template-${group}`);
+
+                    if (!tbody || !template || !template.content.firstElementChild) {
+                        return;
+                    }
+
+                    const clone = template.content.firstElementChild.cloneNode(true);
+
+                    tbody.appendChild(clone);
+                    updateTrainingRowOrder(tbody);
+                };
+
+                document.querySelectorAll('[data-add-training-row]').forEach((button) => {
+                    const group = button.getAttribute('data-group');
+
+                    button.addEventListener('click', () => addTrainingRow(group));
+                });
+
+                document.querySelectorAll('tbody[data-training-group]').forEach((tbody) => {
+                    updateTrainingRowOrder(tbody);
+
+                    tbody.addEventListener('click', (event) => {
+                        if (event.target.closest('[data-remove-training-row]')) {
+                            const rows = Array.from(tbody.children);
+
+                            if (rows.length === 1) {
+                                rows[0].querySelectorAll('input, select, textarea').forEach((input) => {
+                                    if (input.dataset.field !== 'position') {
+                                        input.value = '';
+                                    }
+                                });
+
+                                return;
+                            }
+
+                            event.target.closest('tr').remove();
+                            updateTrainingRowOrder(tbody);
+                        }
+                    });
+                });
+
+                const updatePlanningRowOrder = (tbody) => {
+                    const group = tbody.dataset.planningGroup;
+
+                    Array.from(tbody.children).forEach((row, index) => {
+                        const orderElement = row.querySelector('.planning-row-order');
+
+                        if (orderElement) {
+                            orderElement.textContent = index + 1;
+                        }
+
+                        row.querySelectorAll('[data-field]').forEach((field) => {
+                            const fieldName = field.dataset.field;
+                            field.name = `planning_records[${group}][${index}][${fieldName}]`;
+
+                            if (fieldName === 'position') {
+                                field.value = index;
+                            }
+                        });
+                    });
+                };
+
+
+                const addPlanningRow = (group) => {
+                    const tbody = document.querySelector(`[data-planning-group="${group}"]`);
+                    const template = document.getElementById('planning-row-template');
+
+                    if (!tbody || !template) {
+                        return;
+                    }
+
+                    const clone = template.content.firstElementChild.cloneNode(true);
+
+                    tbody.appendChild(clone);
+                    updatePlanningRowOrder(tbody);
+                };
+
+                document.querySelectorAll('[data-add-planning-row]').forEach((button) => {
+                    button.addEventListener('click', () => addPlanningRow(button.dataset.group));
+                });
+
+                document.querySelectorAll('tbody[data-planning-group]').forEach((tbody) => {
+                    updatePlanningRowOrder(tbody);
+
+                    tbody.addEventListener('click', (event) => {
+                        if (event.target.closest('[data-remove-planning-row]')) {
+                            const rows = Array.from(tbody.children);
+
+                            if (rows.length === 1) {
+                                rows[0].querySelectorAll('input').forEach((input) => {
+                                    if (input.dataset.field !== 'position') {
+                                        input.value = '';
+                                    }
+                                });
+
+                                return;
+                            }
+
+                            event.target.closest('tr').remove();
+                            updatePlanningRowOrder(tbody);
+                        }
+                    });
+                });
+
                 const updateWorkRowOrder = (tbody) => {
                     Array.from(tbody.children).forEach((row, index) => {
                         const orderElement = row.querySelector('.work-row-order');
@@ -1745,6 +2023,23 @@
                 </td>
                 <td class="text-center align-middle">
                     <button type="button" class="btn btn-link text-danger p-0" data-remove-asset-row>
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </td>
+            </tr>
+        </template>
+        <template id="planning-row-template">
+            <tr>
+                <td class="text-center align-middle">
+                    <span class="planning-row-order"></span>
+                    <input type="hidden" data-field="position" value="0">
+                </td>
+                <td><input type="text" class="form-control" data-field="position_title"></td>
+                <td><input type="text" class="form-control" data-field="stage"></td>
+                <td><input type="text" class="form-control" data-field="status"></td>
+                <td><input type="text" class="form-control" data-field="notes"></td>
+                <td class="text-center align-middle">
+                    <button type="button" class="btn btn-link text-danger p-0" data-remove-planning-row>
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </td>

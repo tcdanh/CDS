@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 use App\Models\WorkExperience;
+use App\Models\PlanningRecord;
 
 class PersonalInfo extends Model
 {
@@ -126,6 +127,14 @@ class PersonalInfo extends Model
     public function workExperiences(): HasMany
     {
         return $this->hasMany(WorkExperience::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function planningRecords(): HasMany
+    {
+        return $this->hasMany(PlanningRecord::class)
+            ->orderBy('category')
             ->orderBy('position')
             ->orderBy('id');
     }
