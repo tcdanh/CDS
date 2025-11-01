@@ -139,6 +139,11 @@ class PersonalInfo extends Model
             ->orderBy('id');
     }
 
+    public function managedProjects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'principal_investigator_id');
+    }
+
     public function getAvatarUrlAttribute(): string
     {
         if (! $this->avatar_path) {
