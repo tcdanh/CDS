@@ -7,6 +7,7 @@ use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\TrainingInfoController;
 use App\Http\Controllers\PlanningInfoController;
 use App\Http\Controllers\WorkInfoController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/scientific-profile/planning', [PlanningInfoController::class, 'index'])->name('scientific-profiles.planning');
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');
+
+     Route::resource('project-management', ProjectController::class)
+        ->parameters(['project-management' => 'project'])
+        ->except(['show']);
 });
 
 Route::resource('banner_article', App\Http\Controllers\BannerArticleController::class)->middleware('auth');

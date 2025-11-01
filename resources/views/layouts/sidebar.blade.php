@@ -167,10 +167,34 @@
                                     </li>
                                 </ul>
                             </li>
-                            
-                            <!-- Project mgt -->
+                            <!-- TCHC mgt -->
                             <li class="nav-item">
                                 <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-box-seam-fill"></i>
+                                <p>
+                                    Administration
+                                <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                                </a> 
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Lịch công tác</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Đơn xin nghỉ phép</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- End: TCHC mgt -->
+                            <!-- Project mgt -->
+                            <li class="nav-item">
+                                <a href="{{ route('project-management.index') }}" class="nav-link {{ request()->routeIs('project-management.*') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-box-seam-fill"></i>
                                 <p>
                                     Project Management
@@ -190,15 +214,6 @@
                                 </a> 
                             </li>
                             <!-- End: Education mgt -->
-
-                            <!-- Lich công tac -->
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                <i class="nav-icon bi bi-calendar-day"></i>
-                                <p>Lịch công tác</p>
-                                </a>
-                            </li>
-                            <!-- End: Lich công tac -->
 
                             <!-- Admin config -->
                             @if (auth()->check() && auth()->user()->isAdmin())
