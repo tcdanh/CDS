@@ -8,6 +8,7 @@ use App\Http\Controllers\TrainingInfoController;
 use App\Http\Controllers\PlanningInfoController;
 use App\Http\Controllers\WorkInfoController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
@@ -24,14 +25,18 @@ Route::redirect('/', '/cds/public/login')->name('home');
 
 
 
-Route::get('/dashboard', function () {
+/**Route::get('/dashboard', function () { 
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard'); **/
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 
     Route::get('/scientific-profile', [PersonalInfoController::class, 'show'])->name('scientific-profiles.show');
 
@@ -45,7 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');
 
-     Route::resource('project-management', ProjectController::class)
+    Route::resource('project-management', ProjectController::class)
         ->parameters(['project-management' => 'project'])
         ->except(['show']);
 });

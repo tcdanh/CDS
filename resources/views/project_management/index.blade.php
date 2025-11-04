@@ -35,18 +35,18 @@
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped align-middle">
-                        <thead class="table-light">
+                        <thead class="table-light" style="vertical-align: middle;">
                             <tr>
-                                <th class="text-center" style="width: 60px;">#</th>
+                                <th class="text-center" style="width: 40px;">#</th>
                                 <th>Tên dự án</th>
-                                <th>Nhóm ngành</th>
-                                <th>Loại hình nghiên cứu</th>
+                                <!--th>Nhóm ngành</th>
+                                <th>Loại hình nghiên cứu</th-->
                                 <th>Thời gian thực hiện</th>
-                                <th>Chủ nhiệm đề tài</th>
-                                <th>Thư ký khoa học</th>
+                                <th style="width: 140px;">Chủ nhiệm/ TK đề tài</th>
+                                <!--th>Thư ký khoa học</th-->
                                 <th class="text-end">Tổng kinh phí (VND)</th>
-                                <th>Tình trạng</th>
-                                <th style="width: 150px;" class="text-center">Thao tác</th>
+                                <th style="width: 100px;">Tình trạng</th>
+                                <th style="width: 160px;" class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -56,24 +56,29 @@
                                     <td>
                                         <strong>{{ $project->name_vi }}</strong>
                                         <div class="text-muted small">{{ $project->name_en }}</div>
-                                        @if ($project->notes)
-                                            <div class="mt-1 small">{{ Str::limit($project->notes, 80) }}</div>
-                                        @endif
+                                        
                                     </td>
-                                    <td>{{ $project->industry_group ?? '—' }}</td>
-                                    <td>{{ $project->research_type ?? '—' }}</td>
+                                    <!--td>{{ $project->industry_group ?? '—' }}</td>
+                                    <td>{{ $project->research_type ?? '—' }}</td-->
                                     <td>{{ $project->implementation_time ?? '—' }}</td>
-                                    <td>{{ optional($project->principalInvestigator)->full_name ?? '—' }}</td>
-                                    <td>{{ $project->science_secretary ?? '—' }}</td>
+                                    <td>{{ optional($project->principalInvestigator)->full_name ?? '—' }}
+                                        <div class="text-muted small">(TK: {{ $project->science_secretary ?? '—' }})</div>
+                                    </td>
+                                    <!--td>{{ $project->science_secretary ?? '—' }}</td-->
                                     <td class="text-end">
                                         @if (! is_null($project->total_budget))
-                                            {{ number_format($project->total_budget, 2, ',', '.') }}
+                                            {{ number_format($project->total_budget, 0, ',', '.') }}
                                         @else
                                             —
                                         @endif
                                     </td>
-                                    <td>{{ $project->status ?? '—' }}</td>
+                                    <td>{{ $project->status ?? '—' }}
+                                        @if ($project->notes)
+                                            <div class="mt-1 small">({{ Str::limit($project->notes, 80) }})</div>
+                                        @endif
+                                    </td>
                                     <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary me-1">Xem</a>
                                         <a href="{{ route('project-management.edit', $project) }}" class="btn btn-sm btn-warning me-1">Sửa</a>
                                         <form action="{{ route('project-management.destroy', $project) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá dự án này?');">
                                             @csrf
