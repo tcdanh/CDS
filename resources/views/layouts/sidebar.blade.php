@@ -73,7 +73,8 @@
                                 $trainingInfoActive = request()->routeIs('scientific-profiles.training');
                                 $workInfoActive = request()->routeIs('scientific-profiles.work');
                                 $planningInfoActive = request()->routeIs('scientific-profiles.planning');
-                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive;
+                                $compensationInfoActive = request()->routeIs('scientific-profiles.compensation', 'scientific-profiles.compensation.edit');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive || $compensationInfoActive;
                             @endphp
                             <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
                                 <!--a href="#" class="nav-link"-->
@@ -123,7 +124,7 @@
                                         <p>Quy hoạch</p>
                                         </a>
                                     </li>
-                                    <li class="nav-header">-----------------</li>
+                                    <li class="nav-header">----- Giảng dạy và Nghiên cứu</li>
                                     <li class="nav-item">
                                         <a href="#" class="nav-link ">
                                         <i class="nav-icon bi bi-circle"></i>
@@ -148,9 +149,9 @@
                                         <p>Xuất bản & SHTT</p>
                                         </a>
                                     </li>
-                                    <li class="nav-header">-----------------</li>
+                                    <li class="nav-header">----- Nghiệp vụ </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.compensation') }}" class="nav-link {{ $compensationInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Lương - Phụ cấp</p>
                                         </a>

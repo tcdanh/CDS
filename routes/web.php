@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\FamilyInfoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CompensationInfoController;
 use App\Http\Controllers\PersonalHistoryController;
 use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\TrainingInfoController;
 use App\Http\Controllers\PlanningInfoController;
 use App\Http\Controllers\WorkInfoController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectDetailController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
@@ -47,12 +49,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/scientific-profile/training', [TrainingInfoController::class, 'index'])->name('scientific-profiles.training');
     Route::get('/scientific-profile/work', [WorkInfoController::class, 'index'])->name('scientific-profiles.work');
     Route::get('/scientific-profile/planning', [PlanningInfoController::class, 'index'])->name('scientific-profiles.planning');
+    Route::get('/scientific-profile/compensation', [CompensationInfoController::class, 'index'])->name('scientific-profiles.compensation');
+    Route::get('/scientific-profile/compensation/edit', [CompensationInfoController::class, 'edit'])->name('scientific-profiles.compensation.edit');
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');
 
     Route::resource('project-management', ProjectController::class)
         ->parameters(['project-management' => 'project'])
         ->except(['show']);
+
+    Route::get('project-management/{project}', [ProjectDetailController::class, 'show'])
+        ->name('project-management.show');
+
+    Route::get('project-management/{project}/detail/create', [ProjectDetailController::class, 'create'])
+        ->name('project-details.create');
+    Route::post('project-management/{project}/detail', [ProjectDetailController::class, 'store'])
+        ->name('project-details.store');
+    Route::get('project-management/{project}/detail/edit', [ProjectDetailController::class, 'edit'])
+        ->name('project-details.edit');
+    Route::put('project-management/{project}/detail', [ProjectDetailController::class, 'update'])
+        ->name('project-details.update');
+    Route::get('project-management/{project}/detail/download', [ProjectDetailController::class, 'download'])
+        ->name('project-details.download');
 });
 
 Route::resource('banner_article', App\Http\Controllers\BannerArticleController::class)->middleware('auth');

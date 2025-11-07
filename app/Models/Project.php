@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Project extends Model
 {
@@ -30,5 +31,10 @@ class Project extends Model
     public function principalInvestigator(): BelongsTo
     {
         return $this->belongsTo(PersonalInfo::class, 'principal_investigator_id');
+    }
+
+    public function detail(): HasOne
+    {
+        return $this->hasOne(ProjectDetail::class);
     }
 }

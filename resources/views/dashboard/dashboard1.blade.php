@@ -21,10 +21,6 @@
                     ></path>
                   </svg>
                   <a href="{{ route('project-management.index') }}" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover {{ request()->routeIs('project-management.*') ? 'active' : '' }}">
-                  <!--a 
-                    href="#"
-                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover"
-          -->
                     More info <i class="bi bi-link-45deg"></i>
                   </a>
                 </div>
@@ -91,7 +87,8 @@
                 <!--begin::Small Box Widget 4-->
                 <div class="small-box text-bg-danger">
                   <div class="inner">
-                    <h3>14<sup class="fs-5"></sup></h3>
+                    <h3>{{ sprintf('%02d', $personalCount) }}</h3>
+                    <!--h3>14<sup class="fs-5"></sup></h3-->
                     <p>Employees</p>
                   </div>
                   <svg
