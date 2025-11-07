@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use App\Models\PersonalInfo;
 
 class DashboardController extends Controller
 {
@@ -13,9 +14,10 @@ class DashboardController extends Controller
     public function index()
     {
         $projectCount = Project::count();
+        $personalCount = PersonalInfo::count();
 
         return view('dashboard', [
-            'projectCount' => $projectCount,
+            'projectCount' => $projectCount, 'personalCount' => $personalCount,
         ]);
     }
 

@@ -81,6 +81,19 @@
             'action_icon' => 'bi-diagram-3',
             'action_title' => 'Xem thông tin quy hoạch',
         ],
+        'compensation' => [
+            'title' => 'Lương & phụ cấp',
+            'heading' => 'Danh sách lương & phụ cấp',
+            'description' => 'Theo dõi thông tin lương và phụ cấp của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.compensation',
+            'profile_icon' => 'bi-cash-coin',
+            'action_route' => 'scientific-profiles.compensation',
+            'action_icon' => 'bi-cash-coin',
+            'action_title' => 'Xem thông tin lương & phụ cấp',
+        ],
     ];
 
     $config = $config[$mode] ?? $config['personal'];
@@ -151,6 +164,16 @@
                                 @elseif ($mode === 'planning')
                                     <div class="text-muted small">
                                         {{ $personalInfo->planning_records_count ?? 0 }} mục quy hoạch
+                                    </div>
+                                @elseif ($mode === 'compensation')
+                                    @php
+                                        $salaryCount = $personalInfo->salary_records_count ?? 0;
+                                        $allowanceCount = $personalInfo->allowance_records_count ?? 0;
+                                    @endphp
+                                    <div class="text-muted small">
+                                        {{ $salaryCount }} mục lương
+                                        <span class="mx-1">•</span>
+                                        {{ $allowanceCount }} mục phụ cấp
                                     </div>
                                 @else
                                     <div class="text-muted small">{{ $personalInfo->main_job_title ?? '—' }}</div>

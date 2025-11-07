@@ -78,7 +78,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary me-1">Xem</a>
+                                         <a href="{{ route('project-management.show', $project) }}" class="btn btn-sm btn-info me-1">Xem</a>
                                         <a href="{{ route('project-management.edit', $project) }}" class="btn btn-sm btn-warning me-1">Sửa</a>
                                         <form action="{{ route('project-management.destroy', $project) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá dự án này?');">
                                             @csrf

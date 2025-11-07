@@ -16,7 +16,9 @@ class UpdatePersonalInfoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'full_name' => ['required', 'string', 'max:255'],
+            //** 'full_name' => ['required', 'string', 'max:255'], */
+            'redirect_to' => ['nullable', Rule::in(['compensation'])],
+            'full_name' => ['required_unless:redirect_to,compensation', 'string', 'max:255'],
             'alternate_name' => ['nullable', 'string', 'max:255'],
             'birth_date' => ['nullable', 'date'],
 
@@ -141,6 +143,20 @@ class UpdatePersonalInfoRequest extends FormRequest
             'informatics.*.institution' => ['nullable', 'string', 'max:255'],
             'informatics.*.year_awarded' => ['nullable', 'digits:4'],
             'informatics.*.position' => ['nullable', 'integer', 'min:0'],
+            'salary_records' => ['nullable', 'array'],
+            'salary_records.*.from_period' => ['nullable', 'string', 'max:20'],
+            'salary_records.*.to_period' => ['nullable', 'string', 'max:20'],
+            'salary_records.*.coefficient' => ['nullable', 'numeric'],
+            'salary_records.*.benefit_percentage' => ['nullable', 'numeric'],
+            'salary_records.*.position' => ['nullable', 'integer', 'min:0'],
+            'allowance_records' => ['nullable', 'array'],
+            'allowance_records.*.from_period' => ['nullable', 'string', 'max:20'],
+            'allowance_records.*.to_period' => ['nullable', 'string', 'max:20'],
+            'allowance_records.*.allowance_type' => ['nullable', 'string', 'max:255'],
+            'allowance_records.*.salary_percentage' => ['nullable', 'numeric'],
+            'allowance_records.*.coefficient' => ['nullable', 'numeric'],
+            'allowance_records.*.amount' => ['nullable', 'numeric'],
+            'allowance_records.*.position' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

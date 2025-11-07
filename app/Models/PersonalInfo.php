@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-use App\Models\WorkExperience;
+use App\Models\AllowanceRecord;
 use App\Models\PlanningRecord;
+use App\Models\SalaryRecord;
+use App\Models\WorkExperience;
 
 class PersonalInfo extends Model
 {
@@ -139,6 +142,20 @@ class PersonalInfo extends Model
             ->orderBy('id');
     }
 
+    public function salaryRecords(): HasMany
+    {
+        return $this->hasMany(SalaryRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function allowanceRecords(): HasMany
+    {
+        return $this->hasMany(AllowanceRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+    
     public function managedProjects(): HasMany
     {
         return $this->hasMany(Project::class, 'principal_investigator_id');

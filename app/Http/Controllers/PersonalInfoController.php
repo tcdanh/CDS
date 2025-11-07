@@ -112,6 +112,12 @@ class PersonalInfoController extends Controller
             'planningRecords' => function ($query) {
                 $query->orderBy('category')->orderBy('position')->orderBy('id');
             },
+            'salaryRecords' => function ($query) {
+                $query->orderBy('position')->orderBy('id');
+            },
+            'allowanceRecords' => function ($query) {
+                $query->orderBy('position')->orderBy('id');
+            },
         ]);
 
         return view('scientific_profiles.edit', [
@@ -150,6 +156,8 @@ class PersonalInfoController extends Controller
         $familyMembers = collect($request->input('family_members', []));
         $familyAssets = collect($request->input('family_assets', []));
         $workExperiences = collect($request->input('work_experiences', []));
+        $salaryRecordsInput = collect($request->input('salary_records', []));
+        $allowanceRecordsInput = collect($request->input('allowance_records', []));
         $planningRecordsInput = collect($request->input('planning_records', []));
         $historyInput = collect($request->input('personal_history', []))
             ->only(['imprisonment_history', 'old_regime_roles', 'foreign_relations'])
@@ -177,7 +185,10 @@ class PersonalInfoController extends Controller
             $data['national_defense'],
             $data['foreign_language'],
             $data['informatics'],
-            $data['planning_records']
+            $data['planning_records'],
+            $data['salary_records'],
+            $data['allowance_records'],
+            $data['redirect_to']
         );
 
         $info->fill($data);
@@ -324,6 +335,107 @@ class PersonalInfoController extends Controller
 
         if ($experienceRecords->isNotEmpty()) {
             $info->workExperiences()->createMany($experienceRecords->all());
+        }
+
+        $salaryRecords = $salaryRecordsInput
+            ->filter(function ($record) {
+                if (! is_array($record)) {
+                    return false;
+                }
+
+                return collect($record)
+                    ->only(['from_period', 'to_period', 'coefficient', 'benefit_percentage'])
+                    ->map(function ($value) {
+                        if (is_string($value)) {
+                            $value = trim($value);
+
+                            return $value === '' ? null : $value;
+                        }
+
+                        return $value;
+                    })
+                    ->filter(fn ($value) => filled($value))
+                    ->isNotEmpty();
+            })
+            ->values()
+            ->map(function ($record, $index) {
+                $position = isset($record['position']) && is_numeric($record['position'])
+                    ? (int) $record['position']
+                    : $index;
+
+                $coefficient = $record['coefficient'] ?? null;
+                $benefitPercentage = $record['benefit_percentage'] ?? null;
+
+                return [
+                    'from_period' => isset($record['from_period']) && is_string($record['from_period'])
+                        ? trim($record['from_period']) ?: null
+                        : ($record['from_period'] ?? null),
+                    'to_period' => isset($record['to_period']) && is_string($record['to_period'])
+                        ? trim($record['to_period']) ?: null
+                        : ($record['to_period'] ?? null),
+                    'coefficient' => is_numeric($coefficient) ? (float) $coefficient : null,
+                    'benefit_percentage' => is_numeric($benefitPercentage) ? (float) $benefitPercentage : null,
+                    'position' => $position,
+                ];
+            });
+
+        $info->salaryRecords()->delete();
+
+        if ($salaryRecords->isNotEmpty()) {
+            $info->salaryRecords()->createMany($salaryRecords->all());
+        }
+
+        $allowanceRecords = $allowanceRecordsInput
+            ->filter(function ($record) {
+                if (! is_array($record)) {
+                    return false;
+                }
+
+                return collect($record)
+                    ->only(['from_period', 'to_period', 'allowance_type', 'salary_percentage', 'coefficient', 'amount'])
+                    ->map(function ($value) {
+                        if (is_string($value)) {
+                            $value = trim($value);
+
+                            return $value === '' ? null : $value;
+                        }
+
+                        return $value;
+                    })
+                    ->filter(fn ($value) => filled($value))
+                    ->isNotEmpty();
+            })
+            ->values()
+            ->map(function ($record, $index) {
+                $position = isset($record['position']) && is_numeric($record['position'])
+                    ? (int) $record['position']
+                    : $index;
+
+                $salaryPercentage = $record['salary_percentage'] ?? null;
+                $coefficient = $record['coefficient'] ?? null;
+                $amount = $record['amount'] ?? null;
+
+                return [
+                    'from_period' => isset($record['from_period']) && is_string($record['from_period'])
+                        ? trim($record['from_period']) ?: null
+                        : ($record['from_period'] ?? null),
+                    'to_period' => isset($record['to_period']) && is_string($record['to_period'])
+                        ? trim($record['to_period']) ?: null
+                        : ($record['to_period'] ?? null),
+                    'allowance_type' => isset($record['allowance_type']) && is_string($record['allowance_type'])
+                        ? trim($record['allowance_type']) ?: null
+                        : ($record['allowance_type'] ?? null),
+                    'salary_percentage' => is_numeric($salaryPercentage) ? (float) $salaryPercentage : null,
+                    'coefficient' => is_numeric($coefficient) ? (float) $coefficient : null,
+                    'amount' => is_numeric($amount) ? (float) $amount : null,
+                    'position' => $position,
+                ];
+            });
+
+        $info->allowanceRecords()->delete();
+
+        if ($allowanceRecords->isNotEmpty()) {
+            $info->allowanceRecords()->createMany($allowanceRecords->all());
         }
 
         $allowedPlanningCategories = collect(PlanningRecord::categories())->keys();
@@ -485,8 +597,16 @@ class PersonalInfoController extends Controller
         }
 
 
+        $redirectTo = $request->input('redirect_to');
+        $redirectRoute = 'scientific-profiles.show';
+
+        if ($redirectTo === 'compensation') {
+            $redirectRoute = 'scientific-profiles.compensation';
+        }
+
         return redirect()
-            ->route('scientific-profiles.show')
+            /** ->route('scientific-profiles.show') */
+            ->route($redirectRoute)
             ->with('status', 'personal-info-updated');
     }
 
