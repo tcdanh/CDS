@@ -8,6 +8,7 @@ use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\TrainingInfoController;
 use App\Http\Controllers\PlanningInfoController;
 use App\Http\Controllers\WorkInfoController;
+use App\Http\Controllers\RecognitionInfoController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDetailController;
 use App\Http\Controllers\DashboardController;
@@ -51,6 +52,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scientific-profile/planning', [PlanningInfoController::class, 'index'])->name('scientific-profiles.planning');
     Route::get('/scientific-profile/compensation', [CompensationInfoController::class, 'index'])->name('scientific-profiles.compensation');
     Route::get('/scientific-profile/compensation/edit', [CompensationInfoController::class, 'edit'])->name('scientific-profiles.compensation.edit');
+    Route::get('/scientific-profile/recognition', [RecognitionInfoController::class, 'index'])->name('scientific-profiles.recognition');
+    Route::get('/scientific-profile/recognition/edit', [RecognitionInfoController::class, 'edit'])->name('scientific-profiles.recognition.edit');
     Route::get('/scientific-profile/edit', [PersonalInfoController::class, 'edit'])->name('scientific-profiles.edit');
     Route::put('/scientific-profile', [PersonalInfoController::class, 'update'])->name('scientific-profiles.update');
 

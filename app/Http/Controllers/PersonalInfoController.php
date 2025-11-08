@@ -49,7 +49,6 @@ class PersonalInfoController extends Controller
      */
     public function show(Request $request): View
     {
-        //$info = $this->ensureInfo($request->user());
 
         $currentUser = $request->user();
         $canManageProfiles = $this->userCanManageProfiles($currentUser);
@@ -80,9 +79,7 @@ class PersonalInfoController extends Controller
         }
 
         $info = $this->ensureInfo($targetUser);
-        //return view('scientific_profiles.show', [
-        //    'info' => $info,
-        //]);
+
         return view('scientific_profiles.show', [
             'info' => $info,
             'canEdit' => $targetUser->is($currentUser),
@@ -157,6 +154,8 @@ class PersonalInfoController extends Controller
         $familyAssets = collect($request->input('family_assets', []));
         $workExperiences = collect($request->input('work_experiences', []));
         $salaryRecordsInput = collect($request->input('salary_records', []));
+        $rewardRecordsInput = collect($request->input('reward_records', []));
+        $disciplineRecordsInput = collect($request->input('discipline_records', []));
         $allowanceRecordsInput = collect($request->input('allowance_records', []));
         $planningRecordsInput = collect($request->input('planning_records', []));
         $historyInput = collect($request->input('personal_history', []))
@@ -188,6 +187,8 @@ class PersonalInfoController extends Controller
             $data['planning_records'],
             $data['salary_records'],
             $data['allowance_records'],
+            $data['reward_records'],
+            $data['discipline_records'],
             $data['redirect_to']
         );
 
@@ -436,6 +437,108 @@ class PersonalInfoController extends Controller
 
         if ($allowanceRecords->isNotEmpty()) {
             $info->allowanceRecords()->createMany($allowanceRecords->all());
+        }
+
+        $redirectTo = $request->input('redirect_to');
+        
+        if ($redirectTo === 'recognition') {
+            $rewardRecords = $rewardRecordsInput
+                ->filter(function ($record) {
+                    if (! is_array($record)) {
+                        return false;
+                    }
+
+                    return collect($record)
+                        ->only(['year', 'title', 'awarding_level', 'awarding_form'])
+                        ->map(function ($value) {
+                            if (is_string($value)) {
+                                $value = trim($value);
+
+                                return $value === '' ? null : $value;
+                            }
+
+                            return $value;
+                        })
+                        ->filter(fn ($value) => filled($value))
+                        ->isNotEmpty();
+                })
+                ->values()
+                ->map(function ($record, $index) {
+                    $position = isset($record['position']) && is_numeric($record['position'])
+                        ? (int) $record['position']
+                        : $index;
+
+                    return [
+                        'year' => isset($record['year']) && is_string($record['year'])
+                            ? trim($record['year']) ?: null
+                            : ($record['year'] ?? null),
+                        'title' => isset($record['title']) && is_string($record['title'])
+                            ? trim($record['title']) ?: null
+                            : ($record['title'] ?? null),
+                        'awarding_level' => isset($record['awarding_level']) && is_string($record['awarding_level'])
+                            ? trim($record['awarding_level']) ?: null
+                            : ($record['awarding_level'] ?? null),
+                        'awarding_form' => isset($record['awarding_form']) && is_string($record['awarding_form'])
+                            ? trim($record['awarding_form']) ?: null
+                            : ($record['awarding_form'] ?? null),
+                        'position' => $position,
+                    ];
+                });
+
+            $info->rewardRecords()->delete();
+
+            if ($rewardRecords->isNotEmpty()) {
+                $info->rewardRecords()->createMany($rewardRecords->all());
+            }
+
+            $disciplineRecords = $disciplineRecordsInput
+                ->filter(function ($record) {
+                    if (! is_array($record)) {
+                        return false;
+                    }
+
+                    return collect($record)
+                        ->only(['year', 'discipline_form', 'reason', 'issued_by'])
+                        ->map(function ($value) {
+                            if (is_string($value)) {
+                                $value = trim($value);
+
+                                return $value === '' ? null : $value;
+                            }
+
+                            return $value;
+                        })
+                        ->filter(fn ($value) => filled($value))
+                        ->isNotEmpty();
+                })
+                ->values()
+                ->map(function ($record, $index) {
+                    $position = isset($record['position']) && is_numeric($record['position'])
+                        ? (int) $record['position']
+                        : $index;
+
+                    return [
+                        'year' => isset($record['year']) && is_string($record['year'])
+                            ? trim($record['year']) ?: null
+                            : ($record['year'] ?? null),
+                        'discipline_form' => isset($record['discipline_form']) && is_string($record['discipline_form'])
+                            ? trim($record['discipline_form']) ?: null
+                            : ($record['discipline_form'] ?? null),
+                        'reason' => isset($record['reason']) && is_string($record['reason'])
+                            ? trim($record['reason']) ?: null
+                            : ($record['reason'] ?? null),
+                        'issued_by' => isset($record['issued_by']) && is_string($record['issued_by'])
+                            ? trim($record['issued_by']) ?: null
+                            : ($record['issued_by'] ?? null),
+                        'position' => $position,
+                    ];
+                });
+
+            $info->disciplineRecords()->delete();
+
+            if ($disciplineRecords->isNotEmpty()) {
+                $info->disciplineRecords()->createMany($disciplineRecords->all());
+            }
         }
 
         $allowedPlanningCategories = collect(PlanningRecord::categories())->keys();

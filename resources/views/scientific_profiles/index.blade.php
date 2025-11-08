@@ -94,6 +94,19 @@
             'action_icon' => 'bi-cash-coin',
             'action_title' => 'Xem thông tin lương & phụ cấp',
         ],
+        'recognition' => [
+            'title' => 'Khen thưởng - Kỷ luật',
+            'heading' => 'Danh sách khen thưởng - kỷ luật',
+            'description' => 'Theo dõi thông tin khen thưởng và kỷ luật của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.recognition',
+            'profile_icon' => 'bi-award',
+            'action_route' => 'scientific-profiles.recognition',
+            'action_icon' => 'bi-award',
+            'action_title' => 'Xem thông tin khen thưởng - kỷ luật',
+        ],
     ];
 
     $config = $config[$mode] ?? $config['personal'];
@@ -105,7 +118,7 @@
 <div class="card shadow-sm">
     <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center bg-white">
         <div>
-            <h3 class="card-title mb-0">{{ $config['heading'] }}</h3>
+            <h3 class="card-title mb-0">{{ $config['heading'] }}</h3>&nbsp;
             <p class="mb-0 text-muted small">{{ $config['description'] }}</p>
         </div>
         <div class="d-flex gap-2">
@@ -174,6 +187,16 @@
                                         {{ $salaryCount }} mục lương
                                         <span class="mx-1">•</span>
                                         {{ $allowanceCount }} mục phụ cấp
+                                    </div>
+                                @elseif ($mode === 'recognition')
+                                    @php
+                                        $rewardCount = $personalInfo->reward_records_count ?? 0;
+                                        $disciplineCount = $personalInfo->discipline_records_count ?? 0;
+                                    @endphp
+                                    <div class="text-muted small">
+                                        {{ $rewardCount }} mục khen thưởng
+                                        <span class="mx-1">•</span>
+                                        {{ $disciplineCount }} mục kỷ luật
                                     </div>
                                 @else
                                     <div class="text-muted small">{{ $personalInfo->main_job_title ?? '—' }}</div>

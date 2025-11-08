@@ -14,6 +14,7 @@
     $historyRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $workRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
     $planningRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
+    $compensationRouteParams = $viewingOwnProfile ? [] : ['user' => $targetUser->getKey()];
 
     $records = optional($info)->trainingRecords ?? collect();
     $grouped = $records instanceof \Illuminate\Support\Collection ? $records->groupBy('category') : collect();
@@ -62,6 +63,10 @@
         <a href="{{ route('scientific-profiles.planning', $planningRouteParams) }}" class="btn btn-outline-primary">
             <i class="bi bi-diagram-3 me-1"></i>
             Quy hoạch
+        </a>
+        <a href="{{ route('scientific-profiles.compensation', $compensationRouteParams) }}" class="btn btn-outline-primary">
+            <i class="bi bi-cash-coin me-1"></i>
+            Lương - Phụ cấp
         </a>
     </div>
     @if ($canEdit)

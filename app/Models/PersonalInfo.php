@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 use App\Models\AllowanceRecord;
+use App\Models\DisciplineRecord;
 use App\Models\PlanningRecord;
+use App\Models\RewardRecord;
 use App\Models\SalaryRecord;
 use App\Models\WorkExperience;
 
@@ -152,6 +154,20 @@ class PersonalInfo extends Model
     public function allowanceRecords(): HasMany
     {
         return $this->hasMany(AllowanceRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+    
+    public function rewardRecords(): HasMany
+    {
+        return $this->hasMany(RewardRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function disciplineRecords(): HasMany
+    {
+        return $this->hasMany(DisciplineRecord::class)
             ->orderBy('position')
             ->orderBy('id');
     }

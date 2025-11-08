@@ -141,7 +141,7 @@
                 <div class="card shadow-sm">
                   <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 pb-0">
                     <div>
-                      <h3 class="card-title mb-1">Lịch công tác lãnh đạo</h3>&nbsp;
+                      <h3 class="card-title mb-0">Lịch công tác lãnh đạo</h3>&nbsp;
                       @if ($weekRangeLabel)
                         <span class="text-muted small"> (Tuần {{ $weekRangeLabel }})</span>
                       @endif
@@ -189,7 +189,15 @@
                                         <div class="small text-muted fst-italic">{!! nl2br(e($entry->notes)) !!}</div>
                                       @endif
                                       @if ($entry->relationLoaded('user') && $entry->user)
-                                        <div class="small text-body-secondary">Phụ trách: {{ $entry->user->name }}</div>
+                                        <div class="small text-body-secondary">
+                                          @if ($entry->user->id == 1)
+                                            <span class="badge text-bg-success ">{{ $entry->user->name }}</span>
+                                          @elseif ($entry->user->id == 4)
+                                            <span class="badge text-bg-primary">{{ $entry->user->name }}</span>
+                                          @else
+                                            <span class="badge text-bg-warning">{{ $entry->user->name }}</span>
+                                          @endif
+                                        </div>
                                       @endif
                                     </div>
                                   @empty
