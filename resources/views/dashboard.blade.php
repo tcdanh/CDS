@@ -34,5 +34,6 @@
     </div-->
     
     <!-- Dashboard 1 -->
-    @include('dashboard.dashboard1', ['projectCount' => $projectCount ?? 0])
+    @include('dashboard.dashboard1', ['projectCount' => $projectCount ?? 0, 'personalCount' => $personalCount ?? 0])
+    
 @endsection

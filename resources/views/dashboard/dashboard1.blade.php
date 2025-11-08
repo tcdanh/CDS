@@ -121,3 +121,88 @@
               <!--end::Col-->
             </div>
             <!--end::Row-->
+            @php
+                $scheduleDays = ($leaderSchedule ?? null) instanceof \Illuminate\Support\Collection
+                    ? $leaderSchedule
+                    : collect($leaderSchedule ?? []);
+                $weekRangeLabel = null;
+
+                if (is_array($scheduleWeekRange ?? null) && count($scheduleWeekRange) === 2) {
+                    [$weekStart, $weekEnd] = $scheduleWeekRange;
+
+                    if ($weekStart instanceof \Carbon\Carbon && $weekEnd instanceof \Carbon\Carbon) {
+                        $weekRangeLabel = $weekStart->format('d/m') . ' - ' . $weekEnd->format('d/m/Y');
+                    }
+                }
+            @endphp
+
+            <div class="row mt-4">
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 pb-0">
+                    <div>
+                      <h3 class="card-title mb-1">Lịch công tác lãnh đạo</h3>&nbsp;
+                      @if ($weekRangeLabel)
+                        <span class="text-muted small"> (Tuần {{ $weekRangeLabel }})</span>
+                      @endif
+                    </div>
+                    <span class="badge text-bg-primary rounded-pill">Thứ 2 - Thứ 6</span>
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-bordered align-middle mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th class="text-nowrap" style="width: 120px;">Buổi</th>
+                            @foreach ($scheduleDays as $day)
+                              <th class="text-center">
+                                <div class="fw-semibold">{{ $day['label'] ?? '' }}</div>
+                                @if (!empty($day['date']) && $day['date'] instanceof \Carbon\Carbon)
+                                  <div class="text-muted small">{{ $day['date']->format('d/m') }}</div>
+                                @endif
+                              </th>
+                            @endforeach
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @foreach (['morning' => 'Buổi sáng', 'afternoon' => 'Buổi chiều'] as $slotKey => $slotLabel)
+                            <tr>
+                              <th class="text-nowrap align-top">{{ $slotLabel }}</th>
+                              @foreach ($scheduleDays as $day)
+                                @php
+                                  $entriesRaw = $day[$slotKey] ?? [];
+                                  $entries = $entriesRaw instanceof \Illuminate\Support\Collection
+                                      ? $entriesRaw
+                                      : collect($entriesRaw);
+                                @endphp
+                                <td class="align-top">
+                                  @forelse ($entries as $entry)
+                                    <div class="mb-3">
+                                      <div class="fw-semibold">{{ $entry->content }}</div>
+                                      @if ($entry->time_range)
+                                        <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ $entry->time_range }}</div>
+                                      @endif
+                                      @if ($entry->location)
+                                        <div class="small"><i class="bi bi-geo-alt me-1"></i>{{ $entry->location }}</div>
+                                      @endif
+                                      @if ($entry->notes)
+                                        <div class="small text-muted fst-italic">{!! nl2br(e($entry->notes)) !!}</div>
+                                      @endif
+                                      @if ($entry->relationLoaded('user') && $entry->user)
+                                        <div class="small text-body-secondary">Phụ trách: {{ $entry->user->name }}</div>
+                                      @endif
+                                    </div>
+                                  @empty
+                                    <span class="text-muted fst-italic">Không có công tác</span>
+                                  @endforelse
+                                </td>
+                              @endforeach
+                            </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
