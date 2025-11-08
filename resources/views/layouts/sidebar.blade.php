@@ -74,7 +74,8 @@
                                 $workInfoActive = request()->routeIs('scientific-profiles.work');
                                 $planningInfoActive = request()->routeIs('scientific-profiles.planning');
                                 $compensationInfoActive = request()->routeIs('scientific-profiles.compensation', 'scientific-profiles.compensation.edit');
-                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive || $compensationInfoActive;
+                                $recognitionInfoActive = request()->routeIs('scientific-profiles.recognition', 'scientific-profiles.recognition.edit');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive || $compensationInfoActive || $recognitionInfoActive;
                             @endphp
                             <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
                                 <!--a href="#" class="nav-link"-->
@@ -156,14 +157,9 @@
                                         <p>Lương - Phụ cấp</p>
                                         </a>
                                     </li>
+                                    
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
-                                        <i class="nav-icon bi bi-circle"></i>
-                                        <p>Hoạt động</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.recognition') }}" class="nav-link {{ $recognitionInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Khen thưởng - Kỷ luật</p>
                                         </a>

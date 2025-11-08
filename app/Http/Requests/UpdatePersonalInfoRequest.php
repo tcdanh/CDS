@@ -17,8 +17,8 @@ class UpdatePersonalInfoRequest extends FormRequest
     {
         return [
             //** 'full_name' => ['required', 'string', 'max:255'], */
-            'redirect_to' => ['nullable', Rule::in(['compensation'])],
-            'full_name' => ['required_unless:redirect_to,compensation', 'string', 'max:255'],
+            'redirect_to' => ['nullable', Rule::in(['compensation', 'recognition'])],
+            'full_name' => ['required_unless:redirect_to,compensation,recognition', 'string', 'max:255'],
             'alternate_name' => ['nullable', 'string', 'max:255'],
             'birth_date' => ['nullable', 'date'],
 
@@ -157,6 +157,18 @@ class UpdatePersonalInfoRequest extends FormRequest
             'allowance_records.*.coefficient' => ['nullable', 'numeric'],
             'allowance_records.*.amount' => ['nullable', 'numeric'],
             'allowance_records.*.position' => ['nullable', 'integer', 'min:0'],
+            'reward_records' => ['nullable', 'array'],
+            'reward_records.*.year' => ['nullable', 'string', 'max:10'],
+            'reward_records.*.title' => ['nullable', 'string', 'max:255'],
+            'reward_records.*.awarding_level' => ['nullable', 'string', 'max:255'],
+            'reward_records.*.awarding_form' => ['nullable', 'string', 'max:255'],
+            'reward_records.*.position' => ['nullable', 'integer', 'min:0'],
+            'discipline_records' => ['nullable', 'array'],
+            'discipline_records.*.year' => ['nullable', 'string', 'max:10'],
+            'discipline_records.*.discipline_form' => ['nullable', 'string', 'max:255'],
+            'discipline_records.*.reason' => ['nullable', 'string', 'max:500'],
+            'discipline_records.*.issued_by' => ['nullable', 'string', 'max:255'],
+            'discipline_records.*.position' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }

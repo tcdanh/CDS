@@ -1,8 +1,23 @@
+@php
+    $mode = $mode ?? 'compensation';
+@endphp 
+
 @csrf
 @method('PUT')
-<input type="hidden" name="redirect_to" value="compensation">
+<input type="hidden" name="redirect_to" value="{{ $mode === 'recognition' ? 'recognition' : 'compensation' }}">
 
-@php
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <div class="fw-semibold mb-2">Vui lòng kiểm tra lại thông tin:</div>
+        <ul class="mb-0 ps-3 small">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+@if ($mode === 'compensation')
+    @php
     $salaryRows = collect(old('salary_records', optional($info)->salaryRecords?->map(function ($record) {
         return [
             'from_period' => $record->from_period,
@@ -49,18 +64,7 @@
             'position' => 0,
         ]]);
     }
-@endphp
-
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <div class="fw-semibold mb-2">Vui lòng kiểm tra lại thông tin:</div>
-        <ul class="mb-0 ps-3 small">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+    @endphp
 
 <div class="vstack gap-4" data-compensation-form-root>
     <div class="card border-0 shadow-sm">
@@ -339,6 +343,250 @@
         </td>
     </tr>
 </template>
+
+@elseif ($mode === 'recognition')
+    @php
+        $rewardRows = collect(old('reward_records', optional($info)->rewardRecords?->map(function ($record) {
+            return [
+                'year' => $record->year,
+                'title' => $record->title,
+                'awarding_level' => $record->awarding_level,
+                'awarding_form' => $record->awarding_form,
+                'position' => $record->position ?? 0,
+            ];
+        })->toArray() ?? []));
+
+        $disciplineRows = collect(old('discipline_records', optional($info)->disciplineRecords?->map(function ($record) {
+            return [
+                'year' => $record->year,
+                'discipline_form' => $record->discipline_form,
+                'reason' => $record->reason,
+                'issued_by' => $record->issued_by,
+                'position' => $record->position ?? 0,
+            ];
+        })->toArray() ?? []));
+
+        $rewardRows = $rewardRows->sortBy('position')->values();
+        $disciplineRows = $disciplineRows->sortBy('position')->values();
+
+        if ($rewardRows->isEmpty()) {
+            $rewardRows = collect([[
+                'year' => null,
+                'title' => null,
+                'awarding_level' => null,
+                'awarding_form' => null,
+                'position' => 0,
+            ]]);
+        }
+
+        if ($disciplineRows->isEmpty()) {
+            $disciplineRows = collect([[
+                'year' => null,
+                'discipline_form' => null,
+                'reason' => null,
+                'issued_by' => null,
+                'position' => 0,
+            ]]);
+        }
+    @endphp
+
+    <div class="vstack gap-4" data-compensation-form-root>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <i class="bi bi-trophy-fill text-primary me-2"></i>
+                    <span class="fw-semibold">Khen thưởng</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-add-compensation-row="reward">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Thêm dòng
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 60px;">STT</th>
+                                <th style="width: 120px;">Năm</th>
+                                <th>Danh hiệu khen thưởng</th>
+                                <th style="width: 220px;">Cấp khen thưởng</th>
+                                <th style="width: 220px;">Hình thức khen thưởng</th>
+                                <th class="text-center" style="width: 60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody data-compensation-group="reward" data-compensation-prefix="reward_records">
+                            @foreach ($rewardRows as $index => $row)
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <span class="compensation-row-order"></span>
+                                        <input type="hidden" data-field="position" name="reward_records[{{ $index }}][position]" value="{{ $row['position'] ?? $index }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('reward_records.' . $index . '.year') is-invalid @enderror" data-field="year" name="reward_records[{{ $index }}][year]" value="{{ $row['year'] }}">
+                                        @error('reward_records.' . $index . '.year')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('reward_records.' . $index . '.title') is-invalid @enderror" data-field="title" name="reward_records[{{ $index }}][title]" value="{{ $row['title'] }}">
+                                        @error('reward_records.' . $index . '.title')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('reward_records.' . $index . '.awarding_level') is-invalid @enderror" data-field="awarding_level" name="reward_records[{{ $index }}][awarding_level]" value="{{ $row['awarding_level'] }}">
+                                        @error('reward_records.' . $index . '.awarding_level')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('reward_records.' . $index . '.awarding_form') is-invalid @enderror" data-field="awarding_form" name="reward_records[{{ $index }}][awarding_form]" value="{{ $row['awarding_form'] }}">
+                                        @error('reward_records.' . $index . '.awarding_form')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <button type="button" class="btn btn-link text-danger p-0" data-remove-compensation-row>
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>
+                    <span class="fw-semibold">Kỷ luật</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-add-compensation-row="discipline">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Thêm dòng
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 60px;">STT</th>
+                                <th style="width: 120px;">Năm</th>
+                                <th style="width: 220px;">Hình thức kỷ luật</th>
+                                <th>Lý do</th>
+                                <th style="width: 220px;">Cơ quan ban hành</th>
+                                <th class="text-center" style="width: 60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody data-compensation-group="discipline" data-compensation-prefix="discipline_records">
+                            @foreach ($disciplineRows as $index => $row)
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <span class="compensation-row-order"></span>
+                                        <input type="hidden" data-field="position" name="discipline_records[{{ $index }}][position]" value="{{ $row['position'] ?? $index }}">
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('discipline_records.' . $index . '.year') is-invalid @enderror" data-field="year" name="discipline_records[{{ $index }}][year]" value="{{ $row['year'] }}">
+                                        @error('discipline_records.' . $index . '.year')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('discipline_records.' . $index . '.discipline_form') is-invalid @enderror" data-field="discipline_form" name="discipline_records[{{ $index }}][discipline_form]" value="{{ $row['discipline_form'] }}">
+                                        @error('discipline_records.' . $index . '.discipline_form')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('discipline_records.' . $index . '.reason') is-invalid @enderror" data-field="reason" name="discipline_records[{{ $index }}][reason]" value="{{ $row['reason'] }}">
+                                        @error('discipline_records.' . $index . '.reason')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control @error('discipline_records.' . $index . '.issued_by') is-invalid @enderror" data-field="issued_by" name="discipline_records[{{ $index }}][issued_by]" value="{{ $row['issued_by'] }}">
+                                        @error('discipline_records.' . $index . '.issued_by')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <button type="button" class="btn btn-link text-danger p-0" data-remove-compensation-row>
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save me-1"></i>
+                Lưu thay đổi
+            </button>
+        </div>
+    </div>
+
+    <template id="compensation-reward-row-template">
+        <tr>
+            <td class="text-center align-middle">
+                <span class="compensation-row-order"></span>
+                <input type="hidden" data-field="position" value="0">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="year">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="title">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="awarding_level">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="awarding_form">
+            </td>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-link text-danger p-0" data-remove-compensation-row>
+                    <i class="bi bi-x-circle"></i>
+                </button>
+            </td>
+        </tr>
+    </template>
+
+    <template id="compensation-discipline-row-template">
+        <tr>
+            <td class="text-center align-middle">
+                <span class="compensation-row-order"></span>
+                <input type="hidden" data-field="position" value="0">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="year">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="discipline_form">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="reason">
+            </td>
+            <td>
+                <input type="text" class="form-control" data-field="issued_by">
+            </td>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-link text-danger p-0" data-remove-compensation-row>
+                    <i class="bi bi-x-circle"></i>
+                </button>
+            </td>
+        </tr>
+    </template>
+@endif
 
 <script>
     (() => {
