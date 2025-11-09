@@ -11,10 +11,16 @@ use Illuminate\Support\Str;
 
 use App\Models\AllowanceRecord;
 use App\Models\DisciplineRecord;
+use App\Models\IntellectualPropertyRecord;
 use App\Models\PlanningRecord;
 use App\Models\RewardRecord;
 use App\Models\SalaryRecord;
 use App\Models\WorkExperience;
+use App\Models\ScientificAward;
+use App\Models\ScientificPublication;
+use App\Models\SupervisionActivityRecord;
+use App\Models\TeachingActivityRecord;
+
 
 class PersonalInfo extends Model
 {
@@ -168,6 +174,48 @@ class PersonalInfo extends Model
     public function disciplineRecords(): HasMany
     {
         return $this->hasMany(DisciplineRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function teachingActivities(): HasMany
+    {
+        return $this->hasMany(TeachingActivityRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function supervisionActivities(): HasMany
+    {
+        return $this->hasMany(SupervisionActivityRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function researchProjectRecords(): HasMany
+    {
+        return $this->hasMany(ResearchProjectRecord::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function scientificAwards(): HasMany
+    {
+        return $this->hasMany(ScientificAward::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function scientificPublications(): HasMany
+    {
+        return $this->hasMany(ScientificPublication::class)
+            ->orderBy('position')
+            ->orderBy('id');
+    }
+
+    public function intellectualPropertyRecords(): HasMany
+    {
+        return $this->hasMany(IntellectualPropertyRecord::class)
             ->orderBy('position')
             ->orderBy('id');
     }

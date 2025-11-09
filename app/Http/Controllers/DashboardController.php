@@ -23,22 +23,59 @@ class DashboardController extends Controller
         $weekStart = Carbon::now()->startOfWeek(); 
         $weekEnd = Carbon::now()->endOfWeek();
 
-        $schedulesByDate = WorkSchedule::with('user')
-            ->whereBetween('scheduled_date', [$weekStart->toDateString(), $weekEnd->toDateString()])
+        // 2. Định nghĩa thứ tự ưu tiên role: 4 -> 1 -> 5
+        $roleOrder = [
+            2 => 0,
+            1 => 1,
+            4 => 2,
+        ];
+
+        // 3. LẤY DỮ LIỆU LỊCH TRƯỚC (đây là chỗ bạn đang thiếu)
+        $schedules = WorkSchedule::with('user')
+            ->whereBetween('scheduled_date', [
+                $weekStart->toDateString(),
+                $weekEnd->toDateString(),
+            ])
             ->whereHas('user', function ($query) {
+                // lọc user role 1,4,5
                 $query->whereIn('role_id', [1, 2, 4]);
             })
-            ->orderBy('scheduled_date')
-            ->orderBy('time_of_day')
-            ->get()
+            ->get();
+        // 4. Group theo ngày, rồi trong mỗi ngày sắp theo ca + thứ tự role 4,1,5
+        $schedulesByDate = $schedules
             ->groupBy(function (WorkSchedule $schedule) {
+                // Nhóm theo ngày YYYY-MM-DD
                 return $schedule->scheduled_date->toDateString();
+            })
+            ->map(function ($dayGroup) use ($roleOrder) {
+                // $dayGroup: Collection các WorkSchedule trong cùng một ngày
+
+                return $dayGroup
+                    ->sortBy(function (WorkSchedule $schedule) use ($roleOrder) {
+                        // Sắp trước theo ca, sau đó theo roleOrder
+                        $roleId   = $schedule->user->role_id;
+                        $roleRank = $roleOrder[$roleId] ?? 999; // role lạ thì đẩy xuống cuối
+
+                        // time_of_day giả sử là chuỗi "morning", "afternoon", "evening"
+                        // Kết hợp vào key để sort ổn định: ca + thứ tự role
+                        return sprintf('%s-%03d', $schedule->time_of_day, $roleRank);
+                    })
+                    ->values(); // reset lại index cho Collection
             });
 
+        //$leaderSchedule = $this->buildWeeklySchedule($weekStart, $schedulesByDate);
+
+        //return view('dashboard', [
+        //    'projectCount' => $projectCount, 'personalCount' => $personalCount, 'leaderSchedule' => $leaderSchedule,
+        //    'scheduleWeekRange' => [$weekStart, $weekEnd],
+        //]);
+        // 5. Xây lịch hiển thị tuần (giữ nguyên helper của bạn)
         $leaderSchedule = $this->buildWeeklySchedule($weekStart, $schedulesByDate);
 
         return view('dashboard', [
-            'projectCount' => $projectCount, 'personalCount' => $personalCount, 'leaderSchedule' => $leaderSchedule,
+            'projectCount'      => $projectCount,
+            'personalCount'     => $personalCount,
+            'leaderSchedule'    => $leaderSchedule,
             'scheduleWeekRange' => [$weekStart, $weekEnd],
         ]);
     }

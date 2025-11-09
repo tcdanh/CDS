@@ -75,7 +75,11 @@
                                 $planningInfoActive = request()->routeIs('scientific-profiles.planning');
                                 $compensationInfoActive = request()->routeIs('scientific-profiles.compensation', 'scientific-profiles.compensation.edit');
                                 $recognitionInfoActive = request()->routeIs('scientific-profiles.recognition', 'scientific-profiles.recognition.edit');
-                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive || $compensationInfoActive || $recognitionInfoActive;
+                                $teachingInfoActive = request()->routeIs('scientific-profiles.teaching', 'scientific-profiles.teaching.edit');
+                                $researchInfoActive = request()->routeIs('scientific-profiles.research', 'scientific-profiles.research.edit');
+                                $awardsInfoActive = request()->routeIs('scientific-profiles.awards', 'scientific-profiles.awards.edit');
+                                $publicationsInfoActive = request()->routeIs('scientific-profiles.publications', 'scientific-profiles.publications.edit');
+                                $profileMenuOpen = $personalInfoActive || $familyInfoActive || $historyInfoActive || $trainingInfoActive || $workInfoActive || $planningInfoActive || $teachingInfoActive || $researchInfoActive || $awardsInfoActive || $publicationsInfoActive || $compensationInfoActive || $recognitionInfoActive;
                             @endphp
                             <li class="nav-item {{ $profileMenuOpen ? 'menu-open' : '' }}">
                                 <!--a href="#" class="nav-link"-->
@@ -127,25 +131,25 @@
                                     </li>
                                     <li class="nav-header">----- Giảng dạy và Nghiên cứu</li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.teaching') }}" class="nav-link {{ $teachingInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Giảng dạy</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.research') }}" class="nav-link {{ $researchInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Đề tài dự án</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                         <a href="{{ route('scientific-profiles.awards') }}" class="nav-link {{ $awardsInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Giải thưởng</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link ">
+                                        <a href="{{ route('scientific-profiles.publications') }}" class="nav-link {{ $publicationsInfoActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Xuất bản & SHTT</p>
                                         </a>

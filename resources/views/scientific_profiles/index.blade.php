@@ -81,6 +81,58 @@
             'action_icon' => 'bi-diagram-3',
             'action_title' => 'Xem thông tin quy hoạch',
         ],
+        'teaching' => [
+            'title' => 'Hoạt động giảng dạy',
+            'heading' => 'Danh sách hoạt động giảng dạy',
+            'description' => 'Theo dõi khối lượng giảng dạy và hướng dẫn của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.teaching',
+            'profile_icon' => 'bi-easel2',
+            'action_route' => 'scientific-profiles.teaching',
+            'action_icon' => 'bi-easel2',
+            'action_title' => 'Xem hoạt động giảng dạy',
+        ],
+        'research' => [
+            'title' => 'Đề tài - Dự án',
+            'heading' => 'Danh sách đề tài - dự án',
+            'description' => 'Theo dõi quá trình tham gia đề tài, dự án khoa học của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.research',
+            'profile_icon' => 'bi-collection',
+            'action_route' => 'scientific-profiles.research',
+            'action_icon' => 'bi-collection',
+            'action_title' => 'Xem đề tài - dự án',
+        ],
+        'awards' => [
+            'title' => 'Giải thưởng khoa học & giảng dạy',
+            'heading' => 'Danh sách giải thưởng',
+            'description' => 'Theo dõi các giải thưởng khoa học và giảng dạy của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.awards',
+            'profile_icon' => 'bi-trophy',
+            'action_route' => 'scientific-profiles.awards',
+            'action_icon' => 'bi-trophy',
+            'action_title' => 'Xem giải thưởng khoa học',
+        ],
+        'publications' => [
+            'title' => 'Xuất bản & Sở hữu trí tuệ',
+            'heading' => 'Danh sách công bố và SHTT',
+            'description' => 'Theo dõi các công trình công bố và văn bằng sở hữu trí tuệ của từng nhân sự',
+            'toggle_route' => 'scientific-profiles.show',
+            'toggle_icon' => 'bi-person-badge',
+            'toggle_label' => 'Xem thông tin cá nhân',
+            'profile_route' => 'scientific-profiles.publications',
+            'profile_icon' => 'bi-journal-richtext',
+            'action_route' => 'scientific-profiles.publications',
+            'action_icon' => 'bi-journal-richtext',
+            'action_title' => 'Xem xuất bản & SHTT',
+        ],
         'compensation' => [
             'title' => 'Lương & phụ cấp',
             'heading' => 'Danh sách lương & phụ cấp',
@@ -177,6 +229,34 @@
                                 @elseif ($mode === 'planning')
                                     <div class="text-muted small">
                                         {{ $personalInfo->planning_records_count ?? 0 }} mục quy hoạch
+                                    </div>
+                                @elseif ($mode === 'teaching')
+                                    @php
+                                        $teachingCount = $personalInfo->teaching_activities_count ?? 0;
+                                        $supervisionCount = $personalInfo->supervision_activities_count ?? 0;
+                                    @endphp
+                                    <div class="text-muted small">
+                                        {{ $teachingCount }} mục giảng dạy
+                                        <span class="mx-1">•</span>
+                                        {{ $supervisionCount }} mục hướng dẫn
+                                    </div>
+                                @elseif ($mode === 'research')
+                                    <div class="text-muted small">
+                                        {{ $personalInfo->research_project_records_count ?? 0 }} đề tài - dự án
+                                    </div>
+                                @elseif ($mode === 'awards')
+                                    <div class="text-muted small">
+                                        {{ $personalInfo->scientific_awards_count ?? 0 }} giải thưởng khoa học
+                                    </div>
+                                @elseif ($mode === 'publications')
+                                    @php
+                                        $publicationCount = $personalInfo->scientific_publications_count ?? 0;
+                                        $ipCount = $personalInfo->intellectual_property_records_count ?? 0;
+                                    @endphp
+                                    <div class="text-muted small">
+                                        {{ $publicationCount }} công bố KHCN
+                                        <span class="mx-1">•</span>
+                                        {{ $ipCount }} văn bằng SHTT
                                     </div>
                                 @elseif ($mode === 'compensation')
                                     @php

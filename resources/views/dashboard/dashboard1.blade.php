@@ -176,33 +176,67 @@
                                       : collect($entriesRaw);
                                 @endphp
                                 <td class="align-top">
-                                  @forelse ($entries as $entry)
-                                    <div class="mb-3">
-                                      <div class="fw-semibold">{{ $entry->content }}</div>
-                                      @if ($entry->time_range)
-                                        <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ $entry->time_range }}</div>
-                                      @endif
-                                      @if ($entry->location)
-                                        <div class="small"><i class="bi bi-geo-alt me-1"></i>{{ $entry->location }}</div>
-                                      @endif
-                                      @if ($entry->notes)
-                                        <div class="small text-muted fst-italic">{!! nl2br(e($entry->notes)) !!}</div>
-                                      @endif
-                                      @if ($entry->relationLoaded('user') && $entry->user)
-                                        <div class="small text-body-secondary">
-                                          @if ($entry->user->id == 1)
-                                            <span class="badge text-bg-success ">{{ $entry->user->name }}</span>
-                                          @elseif ($entry->user->id == 4)
-                                            <span class="badge text-bg-primary">{{ $entry->user->name }}</span>
-                                          @else
-                                            <span class="badge text-bg-warning">{{ $entry->user->name }}</span>
+                                  @php
+                                      // Thứ tự mong muốn cho role_id
+                                      $roleOrder = [2, 1, 4];
+
+                                      // Nhóm các lịch trong ô này theo role_id của user
+                                      $groupedByRole = $entries
+                                          ->filter(fn ($e) => $e->relationLoaded('user') && $e->user)  // an toàn, tránh user null
+                                          ->groupBy(fn ($e) => $e->user->role_id);
+
+                                      // Lấy danh sách role_id theo đúng thứ tự 2,1,4 nhưng chỉ giữ những nhóm thực sự có dữ liệu
+                                      $orderedRoleIds = collect($roleOrder)
+                                          ->filter(fn ($roleId) => isset($groupedByRole[$roleId]))
+                                          ->values();
+                                  @endphp
+
+                                  @if ($orderedRoleIds->isEmpty())
+                                      <span class="text-muted fst-italic">Không có công tác</span>
+                                  @else
+                                      @foreach ($orderedRoleIds as $idx => $roleId)
+                                          @foreach ($groupedByRole[$roleId] as $entry)
+                                              <div class="mb-3">
+                                                  <div class="fw-semibold">{{ $entry->content }}</div>
+
+                                                  @if ($entry->time_range)
+                                                      <div class="text-muted small">
+                                                          <i class="bi bi-clock me-1"></i>{{ $entry->time_range }}
+                                                      </div>
+                                                  @endif
+
+                                                  @if ($entry->location)
+                                                      <div class="small">
+                                                          <i class="bi bi-geo-alt me-1"></i>{{ $entry->location }}
+                                                      </div>
+                                                  @endif
+
+                                                  @if ($entry->notes)
+                                                      <div class="small text-muted fst-italic">
+                                                          {!! nl2br(e($entry->notes)) !!}
+                                                      </div>
+                                                  @endif
+
+                                                  @if ($entry->relationLoaded('user') && $entry->user)
+                                                      <div class="small text-body-secondary">
+                                                          @if ($entry->user->id == 1)
+                                                              <span class="badge text-bg-success">{{ $entry->user->name }}</span>
+                                                          @elseif ($entry->user->id == 4)
+                                                              <span class="badge text-bg-primary">{{ $entry->user->name }}</span>
+                                                          @else
+                                                              <span class="badge text-bg-warning">{{ $entry->user->name }}</span>
+                                                          @endif
+                                                      </div>
+                                                  @endif
+                                              </div>
+                                          @endforeach
+
+                                          {{-- Nếu chưa phải nhóm role cuối cùng thì vẽ 1 gạch ngang để phân tách --}}
+                                          @if ($idx < $orderedRoleIds->count() - 1)
+                                              <hr class="my-2">
                                           @endif
-                                        </div>
-                                      @endif
-                                    </div>
-                                  @empty
-                                    <span class="text-muted fst-italic">Không có công tác</span>
-                                  @endforelse
+                                      @endforeach
+                                  @endif
                                 </td>
                               @endforeach
                             </tr>
