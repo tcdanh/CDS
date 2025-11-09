@@ -237,8 +237,6 @@
                                           @endif
                                       @endforeach
                                   @endif
-
-                                  
                                 </td>
                               @endforeach
                             </tr>
