@@ -171,8 +171,11 @@
                                 </ul>
                             </li>
                             <!-- TCHC mgt -->
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
+                            @php
+                                $workScheduleActive = request()->routeIs('work-schedules.*');
+                            @endphp
+                            <li class="nav-item {{ $workScheduleActive ? 'menu-open' : '' }}">
+                                <a href="#" class="nav-link {{ $workScheduleActive ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-box-seam-fill"></i>
                                 <p>
                                     Administration
@@ -181,7 +184,7 @@
                                 </a> 
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="#" class="nav-link">
+                                        <a href="{{ route('work-schedules.index') }}" class="nav-link {{ $workScheduleActive ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>
                                         <p>Lịch công tác</p>
                                         </a>

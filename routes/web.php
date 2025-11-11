@@ -16,6 +16,7 @@ use App\Http\Controllers\PublicationInfoController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDetailController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\WorkScheduleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
@@ -86,6 +87,13 @@ Route::middleware('auth')->group(function () {
         ->name('project-details.update');
     Route::get('project-management/{project}/detail/download', [ProjectDetailController::class, 'download'])
         ->name('project-details.download');
+
+    Route::get('work-schedules', [WorkScheduleController::class, 'index'])
+        ->name('work-schedules.index');
+    Route::post('work-schedules/update-week', [WorkScheduleController::class, 'updateWeek'])
+        ->name('work-schedules.update-week');
+    Route::post('work-schedules/create-next-week', [WorkScheduleController::class, 'createNextWeek'])
+        ->name('work-schedules.create-next-week');
 });
 
 Route::resource('banner_article', App\Http\Controllers\BannerArticleController::class)->middleware('auth');
