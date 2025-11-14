@@ -78,4 +78,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(PersonalInfo::class);
     }
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
 }
