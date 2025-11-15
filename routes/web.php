@@ -17,6 +17,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDetailController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WorkScheduleController;
+use App\Http\Controllers\LeaveRequestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\HomeController;
@@ -94,6 +95,15 @@ Route::middleware('auth')->group(function () {
         ->name('work-schedules.update-week');
     Route::post('work-schedules/create-next-week', [WorkScheduleController::class, 'createNextWeek'])
         ->name('work-schedules.create-next-week');
+    Route::get('work-schedules/{workSchedule}/detail', [WorkScheduleController::class, 'show'])
+        ->whereNumber('workSchedule')
+        ->name('work-schedules.show');
+    Route::get('leave-requests', [LeaveRequestController::class, 'index'])
+        ->name('leave-requests.index');
+    Route::post('leave-requests', [LeaveRequestController::class, 'store'])
+        ->name('leave-requests.store');
+    Route::patch('leave-requests/{leaveRequest}/status', [LeaveRequestController::class, 'updateStatus'])
+        ->name('leave-requests.update-status');
 });
 
 Route::resource('banner_article', App\Http\Controllers\BannerArticleController::class)->middleware('auth');

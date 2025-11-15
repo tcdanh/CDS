@@ -6,6 +6,10 @@
 @endphp
 
 @section('content')
+@php
+    $currentUser = auth()->user();
+    $isAdmin = $currentUser && $currentUser->isAdmin();
+@endphp
 <div class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -91,7 +95,7 @@
                 <div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="fw-bold mb-0">Thông tin hợp đồng &amp; tài chính</h5>
-                        @if ($detail)
+                        @if ($detail && $isAdmin)
                             <a href="{{ route('project-details.edit', $project) }}" class="btn btn-sm btn-primary">Chỉnh sửa thông tin</a>
                         @endif
                     </div>
@@ -152,7 +156,9 @@
                         <div class="alert alert-info mb-0">
                             Chưa có dữ liệu chi tiết cho dự án này.
                         </div>
-                        <a href="{{ route('project-details.create', $project) }}" class="btn btn-primary">Thêm thông tin</a>
+                        @if ($isAdmin)
+                            <a href="{{ route('project-details.create', $project) }}" class="btn btn-primary">Thêm thông tin</a>
+                        @endif
                     @endif
                 </div>
             </div>
