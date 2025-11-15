@@ -5,6 +5,10 @@
 @endphp
 
 @section('content')
+@php
+    $currentUser = auth()->user();
+    $isAdmin = $currentUser && $currentUser->isAdmin();
+@endphp
 <div class="app-content-header">
     <div class="container-fluid">
         <div class="row">
@@ -24,9 +28,11 @@
         <div class="card card-outline card-primary">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title mb-0">Danh sách dự án nghiên cứu</h3>
-                <a href="{{ route('project-management.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-lg me-1"></i>Thêm dự án
-                </a>
+                @if ($isAdmin)
+                    <a href="{{ route('project-management.create') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-lg me-1"></i>Thêm dự án
+                    </a>
+                @endif
             </div>
             <div class="card-body">
                 @if (session('success'))
@@ -78,13 +84,15 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                         <a href="{{ route('project-management.show', $project) }}" class="btn btn-sm btn-info me-1">Xem</a>
-                                        <a href="{{ route('project-management.edit', $project) }}" class="btn btn-sm btn-warning me-1">Sửa</a>
-                                        <form action="{{ route('project-management.destroy', $project) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá dự án này?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
-                                        </form>
+                                        <a href="{{ route('project-management.show', $project) }}" class="btn btn-sm btn-info me-1">Xem</a>
+                                        @if ($isAdmin)
+                                            <a href="{{ route('project-management.edit', $project) }}" class="btn btn-sm btn-warning me-1">Sửa</a>
+                                            <form action="{{ route('project-management.destroy', $project) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xoá dự án này?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

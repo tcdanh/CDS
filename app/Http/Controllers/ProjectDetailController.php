@@ -11,14 +11,16 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectDetailController extends Controller
 {
+    
     /**
-     * Display a listing of the resource.
+     * Display the specified resource.
      */
-    public function index()
+    public function show(Project $project): View
     {
-        //
-    }
+        $project->load(['principalInvestigator', 'detail']);
 
+        return view('project_management.show', compact('project'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -67,15 +69,7 @@ class ProjectDetailController extends Controller
             ->with('success', 'Đã thêm thông tin hợp đồng & tài chính.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Project $project): View
-    {
-        $project->load(['principalInvestigator', 'detail']);
-
-        return view('project_management.show', compact('project'));
-    }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -101,20 +95,7 @@ class ProjectDetailController extends Controller
         $data = $this->validateDetail($request);
 
         if ($request->hasFile('contract_storage_file')) {
-            /** if ($project->detail && $project->detail->contract_storage_path) {
-                Storage::disk('public')->delete($project->detail->contract_storage_path);
-            }
-
-            $path = $request->file('contract_storage_file')->store('HD_projects', 'public');
-
-            if (! $path) {
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->withErrors(['contract_storage_file' => 'Không thể tải tệp lên, vui lòng thử lại.']);
-            }
-
-            $data['contract_storage_path'] = $path; */
+            
             // Xóa file cũ (nếu có) trong public/uploads/Hopdong
             if ($project->detail && $project->detail->contract_storage_path) {
                 $oldPath = public_path($project->detail->contract_storage_path);

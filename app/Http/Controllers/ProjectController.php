@@ -21,7 +21,6 @@ class ProjectController extends Controller
 
         return view('project_management.index', compact('projects'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -31,7 +30,6 @@ class ProjectController extends Controller
 
         return view('project_management.create', compact('personalInfos'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -55,17 +53,6 @@ class ProjectController extends Controller
 
         return view('project_management.edit', compact('project', 'personalInfos'));
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    
-
     /**
      * Update the specified resource in storage.
      */
@@ -79,7 +66,6 @@ class ProjectController extends Controller
             ->route('project-management.index')
             ->with('success', 'Dự án đã được cập nhật thành công.');
     }
-
     /**
      * Remove the specified resource from storage.
      */

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\WorkSchedule;
 use App\Services\WorkScheduleService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,6 +14,9 @@ use Illuminate\Validation\Rule;
 class WorkScheduleController extends Controller
 {
     private const MANAGER_ROLE_IDS = [1, 2, 4, 12];
+    private const SELF_MANAGED_ROLE_IDS = [1, 2, 4];
+    private const ASSIGNABLE_ROLE_IDS = [1, 2, 4];
+    private const NEXT_WEEK_CREATOR_ROLE_IDS = [1, 12];
 
     public function __construct(private WorkScheduleService $workScheduleService)
     {
@@ -30,14 +35,29 @@ class WorkScheduleController extends Controller
         $nextWeekStart = $weekStart->copy()->addWeek();
         $nextWeekEnd = $weekEnd->copy()->addWeek();
 
-        $authorizedUsers = $this->workScheduleService->getAuthorizedUsers(self::MANAGER_ROLE_IDS);
+        $currentUser = auth()->user();
+        $selfManagedMode = $this->shouldRestrictToOwnSchedules($currentUser);
+
+        $assignableUsers = $selfManagedMode && $currentUser
+            ? collect([$currentUser])
+            : $this->workScheduleService->getAuthorizedUsers(self::ASSIGNABLE_ROLE_IDS);
+
+        $assignableUsers = $assignableUsers->filter()->values();
+
+        $editableSchedules = $selfManagedMode && $currentUser
+            ? $weekSchedules->where('user_id', $currentUser->id)->values()
+            : $weekSchedules;
+
+        $defaultManagerId = $selfManagedMode && $currentUser ? $currentUser->id : null;
 
         return view('administration.work_schedules.index', [
             'leaderSchedule' => $scheduleData['leaderSchedule'],
             'scheduleWeekRange' => [$weekStart, $weekEnd],
-            'currentWeekSchedules' => $weekSchedules,
-            'authorizedUsers' => $authorizedUsers,
+            'editableSchedules' => $editableSchedules,
+            'assignableUsers' => $assignableUsers,
+            'defaultManagerId' => $defaultManagerId,
             'canManageSchedule' => $this->canManageSchedule(),
+            'canCreateNextWeek' => $this->canCreateNextWeek(),
             'nextWeekRange' => [$nextWeekStart, $nextWeekEnd],
         ]);
     }
@@ -46,15 +66,24 @@ class WorkScheduleController extends Controller
     {
         $this->ensureCanManage();
 
+        $currentUser = auth()->user();
+        $selfManagedMode = $this->shouldRestrictToOwnSchedules($currentUser);
+
         $now = Carbon::now();
         $weekStart = $now->copy()->startOfWeek();
         $weekEnd = $now->copy()->endOfWeek();
 
+        $userIdRules = [Rule::exists('users', 'id')->where(function ($query) {
+            $query->whereIn('role_id', self::ASSIGNABLE_ROLE_IDS);
+        })];
+
+        if ($selfManagedMode && $currentUser) {
+            $userIdRules = [Rule::in([$currentUser->id])];
+        }
+
         $validated = $request->validate([
             'schedule_id' => ['required', Rule::exists('work_schedules', 'id')],
-            'user_id' => ['required', Rule::exists('users', 'id')->where(function ($query) {
-                $query->whereIn('role_id', self::MANAGER_ROLE_IDS);
-            })],
+            'user_id' => array_merge(['required'], $userIdRules),
             'scheduled_date' => ['required', 'date', function ($attribute, $value, $fail) use ($weekStart, $weekEnd) {
                 $date = Carbon::parse($value);
                 if ($date->lt($weekStart) || $date->gt($weekEnd)) {
@@ -77,6 +106,16 @@ class WorkScheduleController extends Controller
                 ->withInput();
         }
 
+        if ($selfManagedMode && $currentUser) {
+            $validated['user_id'] = $currentUser->id;
+
+            if ($schedule->user_id !== $currentUser->id) {
+                return back()->withErrors([
+                    'schedule_id' => 'Bạn chỉ có thể điều chỉnh lịch của chính mình.',
+                ])->withInput();
+            }
+        }
+
         $schedule->update([
             'user_id' => $validated['user_id'],
             'scheduled_date' => $validated['scheduled_date'],
@@ -94,15 +133,28 @@ class WorkScheduleController extends Controller
     {
         $this->ensureCanManage();
 
+        if (! $this->canCreateNextWeek()) {
+            abort(403);
+        }
+
         $reference = Carbon::now()->addWeek();
         $nextWeekStart = $reference->copy()->startOfWeek();
         $nextWeekEnd = $reference->copy()->endOfWeek();
 
+        $currentUser = auth()->user();
+        $selfManagedMode = $this->shouldRestrictToOwnSchedules($currentUser);
+
+        $userIdRules = [Rule::exists('users', 'id')->where(function ($query) {
+            $query->whereIn('role_id', self::ASSIGNABLE_ROLE_IDS);
+        })];
+
+        if ($selfManagedMode && $currentUser) {
+            $userIdRules = [Rule::in([$currentUser->id])];
+        }
+
         $validated = $request->validate([
             'entries' => ['required', 'array', 'min:1'],
-            'entries.*.user_id' => ['required', Rule::exists('users', 'id')->where(function ($query) {
-                $query->whereIn('role_id', self::MANAGER_ROLE_IDS);
-            })],
+            'entries.*.user_id' => array_merge(['required'], $userIdRules),
             'entries.*.scheduled_date' => ['required', 'date', function ($attribute, $value, $fail) use ($nextWeekStart, $nextWeekEnd) {
                 $date = Carbon::parse($value);
                 if ($date->lt($nextWeekStart) || $date->gt($nextWeekEnd)) {
@@ -150,9 +202,40 @@ class WorkScheduleController extends Controller
             })
             ->values();
 
+        if ($selfManagedMode && $currentUser) {
+            $entries = $entries->map(function (array $entry) use ($currentUser) {
+                $entry['user_id'] = $currentUser->id;
+
+                return $entry;
+            });
+        }
+
         WorkSchedule::insert($entries->all());
 
         return back()->with('status', 'Đã tạo lịch mới cho tuần tới.');
+    }
+
+    public function show(WorkSchedule $workSchedule): JsonResponse
+    {
+        $this->ensureCanManage();
+
+        $currentUser = auth()->user();
+        $selfManagedMode = $this->shouldRestrictToOwnSchedules($currentUser);
+
+        if ($selfManagedMode && $currentUser && $workSchedule->user_id !== $currentUser->id) {
+            abort(403);
+        }
+
+        return response()->json([
+            'id' => $workSchedule->id,
+            'user_id' => $workSchedule->user_id,
+            'scheduled_date' => optional($workSchedule->scheduled_date)->format('Y-m-d'),
+            'time_of_day' => $workSchedule->time_of_day,
+            'content' => $workSchedule->content,
+            'time_range' => $workSchedule->time_range,
+            'location' => $workSchedule->location,
+            'notes' => $workSchedule->notes,
+        ]);
     }
 
     private function ensureCanManage(): void
@@ -167,5 +250,23 @@ class WorkScheduleController extends Controller
         $user = auth()->user();
 
         return $user && in_array($user->role_id, self::MANAGER_ROLE_IDS, true);
+    }
+
+    private function canCreateNextWeek(): bool
+    {
+        $user = auth()->user();
+
+        return $user && in_array($user->role_id, self::NEXT_WEEK_CREATOR_ROLE_IDS, true);
+    }
+
+    private function shouldRestrictToOwnSchedules(?User $user = null): bool
+    {
+        $user ??= auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return in_array($user->role_id, self::SELF_MANAGED_ROLE_IDS, true);
     }
 }

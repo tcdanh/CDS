@@ -95,6 +95,9 @@ Route::middleware('auth')->group(function () {
         ->name('work-schedules.update-week');
     Route::post('work-schedules/create-next-week', [WorkScheduleController::class, 'createNextWeek'])
         ->name('work-schedules.create-next-week');
+    Route::get('work-schedules/{workSchedule}/detail', [WorkScheduleController::class, 'show'])
+        ->whereNumber('workSchedule')
+        ->name('work-schedules.show');
     Route::get('leave-requests', [LeaveRequestController::class, 'index'])
         ->name('leave-requests.index');
     Route::post('leave-requests', [LeaveRequestController::class, 'store'])

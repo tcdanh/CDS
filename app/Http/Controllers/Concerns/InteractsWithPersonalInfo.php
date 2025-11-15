@@ -28,6 +28,8 @@ trait InteractsWithPersonalInfo
             'admin',
             'administrator',
             'tchc',
+            'director',
+            'vicedirector'
         ];
 
         $roleSlugs = array_filter([

@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 class LeaveRequestController extends Controller
 {
     private const TCHC_ROLE = 'TCHC';
-    private const LEADER_ROLES = ['Admin', 'Director', 'Vice Director'];
+    private const LEADER_ROLES = ['Admin', 'Director', 'ViceDirector'];
 
     public function index(Request $request)
     {
