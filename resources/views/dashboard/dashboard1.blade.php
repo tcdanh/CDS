@@ -123,9 +123,86 @@
 
             <div class="row mt-4">
               <div class="col-12">
-                @include('components.leader-schedule-card', [
+                <!--@include('components.leader-schedule-card', [
                     'leaderSchedule' => $leaderSchedule ?? collect(),
                     'scheduleWeekRange' => $scheduleWeekRange ?? null,
-                ])
+                ]) -->
+                <div class="card">
+                  <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <h3 class="card-title mb-0"><b>Lịch công tác lãnh đạo ILEAD</b></h3>
+                    @if(!empty($canUpdateWeeklySchedule))
+                      <div class="d-flex flex-wrap gap-2">
+                        <a
+                          class="btn btn-outline-primary btn-sm"
+                          href="{{ $driveUrl }}"
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          Mở Google Drive
+                        </a>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          type="button"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#weeklyScheduleUpdateForm"
+                          aria-expanded="false"
+                          aria-controls="weeklyScheduleUpdateForm"
+                        >
+                          Cập nhật lịch tuần mới
+                        </button>
+                      </div>
+                    @endif
+                  </div>
+                  <div class="card-body">
+                    @if(!empty($canUpdateWeeklySchedule))
+                      <div class="collapse mb-4" id="weeklyScheduleUpdateForm">
+                        <form method="POST" action="{{ route('weekly-work-schedules.store') }}">
+                          @csrf
+                          <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                              <label class="form-label">Tuần hiện hành</label>
+                              <input type="text" class="form-control" value="{{ $currentWeekLabel ?? '' }}" readonly>
+                            </div>
+                            <div class="col-md-8">
+                              <label for="weekly-file-url" class="form-label">Đường dẫn file PDF (Google Drive)</label>
+                              <input
+                                id="weekly-file-url"
+                                type="url"
+                                name="file_url"
+                                class="form-control @error('file_url') is-invalid @enderror"
+                                placeholder="https://drive.google.com/..."
+                                required
+                              >
+                              @error('file_url')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                              @enderror
+                            </div>
+                            <div class="col-12">
+                              <button class="btn btn-success" type="submit">Lưu lịch tuần</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    @endif
+                    @if(empty($weeklySchedules) || $weeklySchedules->isEmpty())
+                      <p class="text-muted mb-0">Chưa có lịch công tác tuần.</p>
+                    @else
+                      <div class="list-group">
+                        @foreach($weeklySchedules as $schedule)
+                          <a
+                            href="{{ $schedule->file_url }}"
+                            class="list-group-item list-group-item-action d-flex flex-wrap align-items-center justify-content-between gap-2"
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            <span>{{ $schedule->week_label }}</span>
+                            <span class="badge text-bg-secondary">
+                              Cập nhật: {{ optional($schedule->updated_at)->format('d/m/Y') }}
+                            </span>
+                          </a>
+                        @endforeach
+                      </div>
+                    @endif
+                  </div>
               </div>
             </div>

@@ -75,10 +75,12 @@
                                     <th>Thư ký khoa học</th>
                                     <td>{{ $project->science_secretary ?? '—' }}</td>
                                 </tr>
+                                @if ($isAdmin)
                                 <tr>
                                     <th>Tổng kinh phí (VNĐ)</th>
                                     <td>{{ is_null($project->total_budget) ? '—' : number_format($project->total_budget, 0, ',', '.') }}</td>
                                 </tr>
+                                @endif
                                 <tr>
                                     <th>Tình trạng</th>
                                     <td>{{ $project->status ?? '—' }}</td>
@@ -125,6 +127,7 @@
                                             @endif
                                         </td>
                                     </tr>
+                                    @if ($isAdmin)
                                     <tr>
                                         <th>Tiền công trực tiếp (VNĐ)</th>
                                         <td>{{ $formatCurrency($detail->direct_labor_cost) }}</td>
@@ -141,6 +144,7 @@
                                         <th>Tiền quản lý nhiệm vụ (VNĐ)</th>
                                         <td>{{ $formatCurrency($detail->management_cost) }}</td>
                                     </tr>
+                                    @endif
                                     <tr>
                                         <th>Có gia hạn không?</th>
                                         <td>{{ $detail->is_extended ? 'Có' : 'Không' }}</td>

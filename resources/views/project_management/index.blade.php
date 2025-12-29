@@ -50,7 +50,7 @@
                                 <th>Thời gian thực hiện</th>
                                 <th style="width: 140px;">Chủ nhiệm/ TK đề tài</th>
                                 <!--th>Thư ký khoa học</th-->
-                                <th class="text-end">Tổng kinh phí (VND)</th>
+                                <!--th class="text-end">Tổng kinh phí (VND)</th-->
                                 <th style="width: 100px;">Tình trạng</th>
                                 <th style="width: 160px;" class="text-center">Thao tác</th>
                             </tr>
@@ -71,13 +71,13 @@
                                         <div class="text-muted small">(TK: {{ $project->science_secretary ?? '—' }})</div>
                                     </td>
                                     <!--td>{{ $project->science_secretary ?? '—' }}</td-->
-                                    <td class="text-end">
+                                    <!--td class="text-end">
                                         @if (! is_null($project->total_budget))
                                             {{ number_format($project->total_budget, 0, ',', '.') }}
                                         @else
                                             —
                                         @endif
-                                    </td>
+                                    </td-->
                                     <td>{{ $project->status ?? '—' }}
                                         @if ($project->notes)
                                             <div class="mt-1 small">({{ Str::limit($project->notes, 80) }})</div>

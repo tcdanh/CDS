@@ -4,15 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\PersonalInfo;
-use App\Services\WorkScheduleService;
+//use App\Services\WorkScheduleService;
+use App\Models\WeeklyWorkSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function __construct(private WorkScheduleService $workScheduleService)
+    /*public function __construct(private WorkScheduleService $workScheduleService)
     {
-    }
-
+    } */
+    private const CAP_NHAT = [1, 5, 12];
     /**
      * Display a listing of the resource.
      */
@@ -20,14 +22,31 @@ class DashboardController extends Controller
     {
         $projectCount = Project::count();
         $personalCount = PersonalInfo::count();
+        //$scheduleData = $this->workScheduleService->getWeeklyScheduleData();
+        $currentUser = auth()->user();
+        $canUpdateWeeklySchedule = $currentUser
+            ? in_array($currentUser->role_id, self::CAP_NHAT, true)
+            : false;
 
-        $scheduleData = $this->workScheduleService->getWeeklyScheduleData();
+        $now = Carbon::now();
+        $currentWeekLabel = sprintf(
+            '%s - %s',
+            $now->copy()->startOfWeek()->format('d/m/Y'),
+            $now->copy()->endOfWeek()->format('d/m/Y')
+        );
+
+        $weeklySchedules = WeeklyWorkSchedule::query()
+            ->orderByDesc('updated_at')
+            ->limit(4)
+            ->get();
 
         return view('dashboard', [
             'projectCount'      => $projectCount,
             'personalCount'     => $personalCount,
-            'leaderSchedule'    => $scheduleData['leaderSchedule'],
-            'scheduleWeekRange' => [$scheduleData['weekStart'], $scheduleData['weekEnd']],
+            'weeklySchedules'   => $weeklySchedules,
+            'currentWeekLabel'  => $currentWeekLabel,
+            'canUpdateWeeklySchedule' => $canUpdateWeeklySchedule,
+            'driveUrl' => config('work_schedules.drive_url'),
         ]);
     }
 

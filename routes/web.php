@@ -16,7 +16,8 @@ use App\Http\Controllers\PublicationInfoController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDetailController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\WorkScheduleController;
+//use App\Http\Controllers\WorkScheduleController;
+use App\Http\Controllers\WeeklyWorkScheduleController;
 use App\Http\Controllers\LeaveRequestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsController;
@@ -89,7 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::get('project-management/{project}/detail/download', [ProjectDetailController::class, 'download'])
         ->name('project-details.download');
 
-    Route::get('work-schedules', [WorkScheduleController::class, 'index'])
+    /* Route::get('work-schedules', [WorkScheduleController::class, 'index'])
         ->name('work-schedules.index');
     Route::post('work-schedules/update-week', [WorkScheduleController::class, 'updateWeek'])
         ->name('work-schedules.update-week');
@@ -97,7 +98,10 @@ Route::middleware('auth')->group(function () {
         ->name('work-schedules.create-next-week');
     Route::get('work-schedules/{workSchedule}/detail', [WorkScheduleController::class, 'show'])
         ->whereNumber('workSchedule')
-        ->name('work-schedules.show');
+        ->name('work-schedules.show'); */
+    Route::post('weekly-work-schedules', [WeeklyWorkScheduleController::class, 'store'])
+        ->name('weekly-work-schedules.store');
+        
     Route::get('leave-requests', [LeaveRequestController::class, 'index'])
         ->name('leave-requests.index');
     Route::post('leave-requests', [LeaveRequestController::class, 'store'])
