@@ -171,9 +171,9 @@
                                 </ul>
                             </li>
                             <!-- TCHC mgt -->
-                            @php
+                            <!-- @php
                                 $administrationActive = request()->routeIs('work-schedules.*') || request()->routeIs('leave-requests.*');
-                            @endphp
+                            @endphp -->
                             <li class="nav-item {{ $administrationActive ? 'menu-open' : '' }}">
                                 <a href="#" class="nav-link {{ $administrationActive ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-box-seam-fill"></i>
@@ -183,12 +183,7 @@
                                 </p>
                                 </a> 
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                       <a href="{{ route('work-schedules.index') }}" class="nav-link {{ request()->routeIs('work-schedules.*') ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-circle"></i>
-                                        <p>Lịch công tác</p>
-                                        </a>
-                                    </li>
+                                    
                                     <li class="nav-item">
                                        <a href="{{ route('leave-requests.index') }}" class="nav-link {{ request()->routeIs('leave-requests.*') ? 'active' : '' }}">
                                         <i class="nav-icon bi bi-circle"></i>

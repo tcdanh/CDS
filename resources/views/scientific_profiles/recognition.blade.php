@@ -130,7 +130,7 @@
                                 <th style="width: 120px;">Năm</th>
                                 <th>Danh hiệu khen thưởng</th>
                                 <th style="width: 220px;">Cấp khen thưởng</th>
-                                <th style="width: 220px;">Hình thức khen thưởng</th>
+                                <th style="width: 220px;">Hình thức khen thưởng, số QĐ</th>
                             </tr>
                         </thead>
                         <tbody>

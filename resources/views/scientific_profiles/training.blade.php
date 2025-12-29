@@ -113,7 +113,7 @@
     <div class="col-lg-8">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h4 class="card-title mb-0">Quá trình đào tạo (từ trung cấp trở lên)</h4>
+                <h4 class="card-title mb-0">Quá trình đào tạo (từ tiểu học trở lên)</h4>
                 <span class="badge text-bg-light text-dark">{{ $formalTrainings->count() }} mục</span>
             </div>
             <div class="card-body p-0">

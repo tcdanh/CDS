@@ -74,7 +74,7 @@
                                 <div class="text-muted small">{{ $leaveRequest->user?->email }}</div>
                             </td>
                             <td>{{ optional($leaveRequest->created_at)->format('d/m/Y') }}</td>
-                            <td class="text-center">{{ number_format((float) $leaveRequest->days_requested, 2) }}</td>
+                            <td class="text-center">{{ number_format((float) $leaveRequest->days_requested, 0) }}</td>
                             <td>{{ optional($leaveRequest->start_date)->format('d/m/Y') }}</td>
                             <td>{{ optional($leaveRequest->end_date)->format('d/m/Y') }}</td>
                             <td style="max-width: 220px; white-space: pre-wrap;">{{ $leaveRequest->reason }}</td>
